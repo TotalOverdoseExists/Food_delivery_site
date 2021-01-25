@@ -1,38 +1,74 @@
-.App {
-  text-align: center;
+/*Import*/
+@font-face {
+  font-family: proximaNovaRegular;
+  src: url(/src/fonts/proximaNovaRegular.ttf);
+}
+@font-face {
+  font-family: proximaNovaSemibold;
+  src: url(/src/fonts/proximaNovaSemibold.ttf);
+}
+@font-face {
+  font-family: proximaNovaBold;
+  src: url(/src/fonts/proximaNovaBold.ttf);
+}
+@font-face {
+  font-family: proximaNovaExtraBold;
+  src: url(/src/fonts/proximaNovaExtraBold.ttf);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/*Variables*/
+:root {
+  --regular: proximaNovaRegular;
+  --semibold: proximaNovaSemibold;
+  --bold: proximaNovaBold;
+  --extraBold: proximaNovaExtraBold;
+  --b: #000;
+  --w: #fff;
+  --grey: #e1e1e1;
+  --darkGrey: #9da3ad;
+  --mainColor: #fb5a16;
+  --padding: 4rem 12.5rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/*Base*/
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  -webkit-appearance: none;
+}
+html {
+  height: 100%;
+  background: var(--w);
+  font-size: 1vw;
+  font-family: var(--semibold), sans-serif;
+}
+header {
+  border-bottom: 0.1rem solid var(--grey);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/*Layout*/
+#l-personalPanel {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  padding: var(--padding);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.1rem solid var(--grey);
+}
+#l-menuPanel {
+  font-size: 1.25rem;
+  padding: var(--padding);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
-}
+/*Module*/
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
+/*Theme*/
+
+
+/*State*/

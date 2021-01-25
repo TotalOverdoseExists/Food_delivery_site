@@ -1,25 +1,22 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+class App extends React.Component {
+  render() {
+    return (
+      <header>
+        <div id='l-personalPanel'>
+          <span>Клиентский сервис: <a href='mailto:claim@m-food.ru'>claim@m-food.ru</a></span>
+          <a href='/auth/'>Войти</a>
+        </div>
+        <div id='l-menuPanel'>
+          <a href='/'>
+            <img src='/src/img/logo.svg' alt='логотип компании'/>
+          </a>
+        </div>
       </header>
-    </div>
-  );
+    )
+  }
 }
 
 export default App;
