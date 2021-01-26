@@ -1,74 +1,157 @@
 /*Import*/
 @font-face {
-  font-family: proximaNovaRegular;
-  src: url(/src/fonts/proximaNovaRegular.ttf);
+	font-family: proximaNovaRegular;
+	src: url(/src/fonts/proximaNovaRegular.ttf);
 }
 @font-face {
-  font-family: proximaNovaSemibold;
-  src: url(/src/fonts/proximaNovaSemibold.ttf);
+	font-family: proximaNovaSemibold;
+	src: url(/src/fonts/proximaNovaSemibold.ttf);
 }
 @font-face {
-  font-family: proximaNovaBold;
-  src: url(/src/fonts/proximaNovaBold.ttf);
+	font-family: proximaNovaBold;
+	src: url(/src/fonts/proximaNovaBold.ttf);
 }
 @font-face {
-  font-family: proximaNovaExtraBold;
-  src: url(/src/fonts/proximaNovaExtraBold.ttf);
+	font-family: proximaNovaExtraBold;
+	src: url(/src/fonts/proximaNovaExtraBold.ttf);
 }
 
 /*Variables*/
 :root {
-  --regular: proximaNovaRegular;
-  --semibold: proximaNovaSemibold;
-  --bold: proximaNovaBold;
-  --extraBold: proximaNovaExtraBold;
-  --b: #000;
-  --w: #fff;
-  --grey: #e1e1e1;
-  --darkGrey: #9da3ad;
-  --mainColor: #fb5a16;
-  --padding: 4rem 12.5rem;
+	--regular: proximaNovaRegular;
+	--semibold: proximaNovaSemibold;
+	--bold: proximaNovaBold;
+	--extraBold: proximaNovaExtraBold;
+	--b: #000;
+	--w: #fff;
+	--grey: #e1e1e1;
+	--darkGrey: #9da3ad;
+	--mainColor: #fb5a16;
+	--padding: 4rem 12.5rem;
 }
 
 /*Base*/
 * {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  -webkit-overflow-scrolling: touch;
-  -webkit-appearance: none;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-overflow-scrolling: touch;
+	-webkit-appearance: none;
 }
 html {
-  height: 100%;
-  background: var(--w);
-  font-size: 1vw;
-  font-family: var(--semibold), sans-serif;
+	height: 100%;
+	background: var(--w);
+	font-size: 1vw;
+	font-family: var(--semibold), sans-serif;
+}
+a, a:hover, a:focus, a:active {
+	color: var(--mainColor);
 }
 header {
-  border-bottom: 0.1rem solid var(--grey);
+	border-bottom: 0.1rem solid var(--grey);
+}
+nav {
+	flex: 1 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+}
+nav a, nav a:hover, nav a:focus, nav a:active {
+	color: var(--b);
+	text-decoration: none;
+}
+footer {
+	font-size: 0.95rem;
+	padding: var(--padding);
+	background: #121821;
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+}
+footer span {
+	display: block;
 }
 
 /*Layout*/
 #l-personalPanel {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.1rem;
-  padding: var(--padding);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 0.1rem solid var(--grey);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 1.1rem;
+	padding: var(--padding);
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 0.1rem solid var(--grey);
 }
 #l-menuPanel {
-  font-size: 1.25rem;
-  padding: var(--padding);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+	font-size: 1.25rem;
+	padding: var(--padding);
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+#l-headerTimeAndTel {
+	font-size: 1.1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-left: 10rem;
+}
+#l-headerTimeAndTel span {
+	font-size: 0.95rem;
+	color: var(--darkGrey);
+}
+#l-headerTimeAndTel article {
+	display: flex;
+	flex-direction: column;
+	align-items: end;
+	justify-content: space-between;
+	font-size: 1.1rem;
+	padding-left: 1rem;
+}
+#l-contacts {
+	margin: 2rem 0;
+}
+#l-contacts h2 {
+	font-size: 1.2rem;
+	margin-bottom: 1rem;
+}
+#l-contacts span:nth-child(2n+1) {
+	margin-bottom: 0.5rem;
+}
+#l-footerSocialLinks {
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+#l-footerSocialLinks img {
+	max-width: 1.5rem;
+}
+#l-footerInfo {
+	text-align: right;
 }
 
 /*Module*/
-
+.m-logoImg {
+	max-width: 4rem;
+}
 
 /*Theme*/
-
+.t-bigTel, .t-bigTel:hover, .t-bigTel:focus, .t-bigTel:active {
+	font-size: 1.5rem;
+	color: var(--b);
+	text-decoration: none;
+}
+.t-dark, .t-dark a, .t-dark a:hover, .t-dark a:focus, .t-dark a:active {
+	color: var(--darkGrey);
+	text-decoration: none;
+}
+.t-light, .t-light a, .t-light a:hover, .t-light a:focus, .t-light a:active {
+	color: var(--grey);
+	text-decoration: none;
+}
 
 /*State*/
