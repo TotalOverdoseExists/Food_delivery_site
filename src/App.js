@@ -55,8 +55,8 @@ function Header() {
 	else {
 		return (
 			<header>
-				<div id='l-menuPanel'>
-					<Link to='/'>Главная</Link>
+				<div id='l-menuInnerPanel'>
+					<Link to='/'>&lt; Главная</Link>
 					<Link to='/'><img className='m-logoImg' src='/img/logo.svg' alt='логотип компании'/></Link>
 				</div>
 			</header>

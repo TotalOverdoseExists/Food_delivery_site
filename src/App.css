@@ -92,6 +92,22 @@ footer span {
 	align-items: center;
 	justify-content: space-between;
 }
+#l-menuInnerPanel {
+	font-size: 1.25rem;
+	padding: var(--padding);
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+#l-menuInnerPanel a {
+	color: var(--b);
+	text-decoration: none;
+}
+#l-menuInnerPanel a:first-child {
+	flex: 0 0 50%;
+}
 #l-headerTimeAndTel {
 	font-size: 1.1rem;
 	display: flex;
