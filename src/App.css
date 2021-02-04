@@ -65,11 +65,41 @@ footer {
 	padding: var(--padding);
 	background: #121821;
 	display: flex;
-	align-items: start;
+	align-items: flex-start;
 	justify-content: space-between;
 }
 footer span {
 	display: block;
+}
+h1 {
+	font-size: 3.3rem;
+	margin-bottom: 4rem;
+	text-align: center;
+	text-transform: uppercase;
+	font-family: var(--extraBold);
+}
+input {
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	background: var(--grey);
+	font-family: var(--bold);
+	font-size: 1.5rem;
+}
+button {
+	font-size: 1.5rem;
+	color: var(--w);
+	background: var(--mainColor);
+	border-radius: 1rem;
+	padding: 1.5rem 2rem;
+	border: none;
+	outline: none;
+	box-shadow: .2rem .2rem 1rem -.4rem var(--b);
+	transition: all .2s;
+	cursor: pointer;
+}
+button:hover {
+	transform: translateY(.3rem);
 }
 
 /*Layout*/
@@ -99,7 +129,7 @@ footer span {
 	padding-bottom: 1rem;
 	display: flex;
 	align-items: center;
-	justify-content: flex-start;
+	justify-content: start;
 }
 #l-menuInnerPanel a {
 	color: var(--b);
@@ -149,10 +179,25 @@ footer span {
 #l-footerInfo {
 	text-align: right;
 }
+#authForm {
+	width: 37.5rem;
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+}
+#authForm input {
+	padding: 1rem 2rem;
+}
+#authForm span {
+	margin: 2.5rem 0;
+}
 
 /*Module*/
 .m-logoImg {
 	max-width: 4rem;
+}
+.m-section {
+	padding: var(--padding);
 }
 
 /*Theme*/
