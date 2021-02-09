@@ -4,6 +4,7 @@ import {
 	Switch,
 	Route,
 	Link,
+	Redirect,
 	useLocation
 } from 'react-router-dom'
 import InputMask from 'react-input-mask'
@@ -129,14 +130,53 @@ export default function App() {
 	}
 	
 	function Auth() {
-		
+		let [telInput, setTelInput] = useState('tel')
+		let [codeInput, setCodeInput] = useState('hidden')
+		const sendTel = e => {
+			e.preventDefault()
 
+			fetch('https://api.musi4s.website/api/v1/post/auth', {
+				method: 'post',
+				mode: 'cors',
+				headers: {
+					'authorization': '3c0d4811f72089fdd67d6ec69ad06889fb03b88a'
+				},
+				body: new FormData(e.target)
+			})
+			.then(response => {
+				if(response.ok) {
+					response.json().then(json => {
+						console.log(json)
+						if(json.success === 'true') {
+							if(json.data.event === 'code') {
+								setTelInput('hidden')
+								setCodeInput('text')
+							}
+							else if(json.data.event === 'auth') {
+								<Redirect to='/profile/'/>
+							}
+						}
+					})
+				}
+			})
+			.catch(error => {
+				console.log(error)
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+		}
+		
 		return (
 			<main>
 				<section className='m-section'>
 					<h1>Ваш телефон</h1>
-					<form id='authForm'>
-						<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'/>
+					<form id='authForm' onSubmit={sendTel}>
+						<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
+							{(inputProps) => <input type={telInput} name='AuthForm[phone]'/>}
+						</InputMask>
+						<InputMask mask='9999' maskChar='_' alwaysShowMask='true'>
+							{(inputProps) => <input type={codeInput} name='AuthForm[code]'/>}
+						</InputMask>
+						<input type='submit' value='Отправить повторно ()'/>
 						<span>
 							Нажимая кнопку «Продолжить», Вы соглашаетесь с условиями <a href='/docs/doc.pdf' target='_blank' rel='noreferrer'>оферты</a> и даете согласие на обработку <a href='/docs/doc.pdf' target='_blank' rel='noreferrer'>персональных данных</a>
 						</span>
