@@ -24,6 +24,7 @@
 	--extraBold: proximaNovaExtraBold;
 	--b: #000;
 	--w: #fff;
+	--lightGrey: #f3f3f3;
 	--grey: #e1e1e1;
 	--darkGrey: #9da3ad;
 	--mainColor: #fb5a16;
@@ -180,18 +181,60 @@ button:hover {
 #l-footerInfo {
 	text-align: right;
 }
-#authForm {
+#l-authForm {
 	width: 37.5rem;
 	margin: auto;
 	display: flex;
 	flex-direction: column;
 }
-#authForm input {
+#l-authForm input {
 	padding: 1rem 2rem;
 }
-#authForm span {
+#l-authForm span {
 	margin: 2.5rem 0;
 }
+#l-profileLinks {
+	width: 55rem;
+	margin: 0 auto 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+#l-profileLinks a {
+	flex: 1 0 auto;
+	text-align: center;
+	padding: 1rem 0;
+	border-top: .1rem solid var(--grey);
+	border-bottom: .1rem solid var(--grey);
+	color: var(--darkGrey);
+	text-decoration: none;
+	font-size: 1.1rem;
+}
+#l-profileLinks a:first-child {
+	border-left: .1rem solid var(--grey);
+	border-right: .1rem solid var(--grey);
+	border-top-left-radius: 1rem;
+}
+#l-profileLinks a:last-child {
+	border-left: .1rem solid var(--grey);
+	border-right: .1rem solid var(--grey);
+	border-top-right-radius: 1rem;
+	color: var(--mainColor);
+}
+#l-profileLinks a.active {
+	color: var(--b);
+	border-left: .1rem solid var(--grey);
+	border-right: .1rem solid var(--grey);
+	border-color: var(--mainColor);
+}
+#l-personalInfo {
+	background: var(--lightGrey);
+	width: 55rem;
+	margin: auto;
+	padding: 2.5rem 7rem;
+	border-radius: 0 0 1rem 1rem;
+}
+
 
 /*Module*/
 .m-logoImg {
@@ -215,5 +258,17 @@ button:hover {
 	color: var(--grey);
 	text-decoration: none;
 }
+.t-timerButton {
+	font-size: 1rem;
+	color: var(--b);
+	background: none;
+	box-shadow: none;
+}
+.t-timerButton:hover {
+	transform: none;
+}
 
 /*State*/
+.s-hidden {
+	display: none;
+}
