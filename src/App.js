@@ -15,37 +15,63 @@ const apiKey = '3c0d4811f72089fdd67d6ec69ad06889fb03b88a'
 const apiUrl = 'https://api.musi4s.website'
 
 export default function App() {
-	let [userAuthorized, setUser] = useState('false')
-	let userHash = sessionStorage.getItem('userHash')
-	
-	if(userHash) {
+	let [userAuthorized, setUserAuthorized] = useState(false)
+
+	if(sessionStorage.getItem('userHash')) {
 		fetch(apiUrl + '/api/v1/get/auth', {
 			method: 'get',
 			mode: 'cors',
 			headers: {
 				'authorization': apiKey,
-				'user-hash': userHash
+				'user-hash': sessionStorage.getItem('userHash')
 			}
 		})
 		.then(response => {
 			response.json().then(json => {
-				if(json.success === 'true') {
+				if(json.success) {
 					if(json.data) {
-						setUser('true')
+						setUserAuthorized(true)
 					}
 				}
 			})
 		})
 		.catch(error => {
-			console.log('User not authorized.')
+			console.log(error)
 		})
 	}
+
+	const getUserData = () => {
+		fetch(apiUrl + '/api/v1/get/user', {
+			method: 'get',
+			mode: 'cors',
+			headers: {
+				'authorization': apiKey,
+				'user-hash': sessionStorage.getItem('userHash')
+			}
+		})
+		.then(response => {
+			response.json().then(json => {
+				if(json.success) {
+					return {
+						'userTel': json.data.user.user_phone,
+						'userName': json.data.user.user_name,
+						'userMail': json.data.user.user_email,
+						'userBirthday': json.data.user.user_birthday,
+						'userGender': json.data.user.user_gender,
+						'userAddresses': json.data.address
+					}
+				}
+			})
+		})
+	}
+
+	console.log(getUserData)
 
 	function Header() {
 		let currentLocation = useLocation()
 	
 		const ProfileLink = () => {
-			if(userAuthorized === 'true') {
+			if(userAuthorized) {
 				return (
 					<Link to='/profile/'>Личный кабинет</Link>
 				)
@@ -194,7 +220,7 @@ export default function App() {
 			}
 		}
 
-		const sendTel = e => {
+		const authorization = e => {
 			e.preventDefault()
 
 			fetch(apiUrl + '/api/v1/post/auth', {
@@ -209,7 +235,7 @@ export default function App() {
 				if(response.ok) {
 					response.json().then(json => {
 						console.log(json)
-						if(json.success === 'true') {
+						if(json.success) {
 							if(json.data.event === 'code') {
 								setTelInput('hidden')
 								setCodeInput('text')
@@ -219,7 +245,7 @@ export default function App() {
 							}
 							else if(json.data.event === 'auth') {
 								sessionStorage.setItem('userHash', json.data.hash)
-								setUser('true')
+								setUserAuthorized(true)
 							}
 						}
 					})
@@ -233,7 +259,7 @@ export default function App() {
 			})
 		}
 		
-		if(userAuthorized === 'true') {
+		if(userAuthorized) {
 			return (
 				<Redirect to='/profile/'/>
 			)
@@ -243,7 +269,7 @@ export default function App() {
 				<main>
 					<section className='m-section'>
 						<h1>Ваш телефон</h1>
-						<form id='l-authForm' onSubmit={sendTel}>
+						<form id='l-authForm' onSubmit={authorization}>
 							<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
 								{(inputProps) => <input type={telInput} name='AuthForm[phone]'/>}
 							</InputMask>
@@ -262,7 +288,7 @@ export default function App() {
 		}
 	}
 	
-	function Profile() {
+	function ProfileLinks() {
 		const logout = () => {
 			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
 				method: 'get',
@@ -274,19 +300,28 @@ export default function App() {
 			})
 			.then(response => {
 				response.json().then(json => {
-					console.log(json)
-					if(json.success === 'true') {
+					if(json.success) {
 						sessionStorage.removeItem('userHash')
-						setUser('false')
+						setUserAuthorized(false)
 					}
 				})
 			})
 			.catch(error => {
-				console.log('User not authorized.')
+				console.log(error)
 			})
 		}
 
-		if(userAuthorized === 'false') {
+		return(
+			<div id='l-profileLinks'>
+				<NavLink to='/profile/' activeClassName='active'>Профиль</NavLink>
+				<NavLink to='/orders/' activeClassName='active'>Заказы</NavLink>
+				<a href='#' onClick={logout}>Выйти</a>
+			</div>
+		)
+	}
+
+	function Profile() {
+		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
 			)
@@ -295,16 +330,25 @@ export default function App() {
 			return (
 				<main>
 					<section className='m-section'>
-						<div id='l-profileLinks'>
-							<NavLink to='/profile/' activeClassName='active'>Профиль</NavLink>
-							<NavLink to='/orders/' activeClassName='active'>Заказы</NavLink>
-							<a href='#' onClick={logout}>Выйти</a>
-						</div>
+						<ProfileLinks/>
 						<div id='l-personalInfo'>
-							<input type='file' name='UserForm[picture]'/>
+							<h2>+7 (922) 418-8882</h2>
 							<article>
-								<label>Телефон</label>
-								<span></span>
+								<input type='text' name='UserForm[name]' placeholder='Имя'/>
+							</article>
+							<article>
+								<input type='email' name='UserForm[email]' placeholder='E-mail'/>
+							</article>
+							<article>
+								<InputMask mask='99.99.9999' maskChar='_' alwaysShowMask='false'>
+									{(inputProps) => <input type='text' name='UserForm[birthday]' placeholder='День рождения'/>}
+								</InputMask>
+							</article>
+							<article>
+								<input type='radio' name='UserForm[gender]' value='m' id='male'/>
+								<label htmlFor='male'>Мужской</label>
+								<input type='radio' name='UserForm[gender]' value='f' id='female'/>
+								<label htmlFor='female'>Женский</label>
 							</article>
 						</div>
 					</section>
@@ -314,30 +358,7 @@ export default function App() {
 	}
 	
 	function Orders() {
-		const logout = () => {
-			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
-				method: 'get',
-				mode: 'cors',
-				headers: {
-					'authorization': apiKey,
-					'user-hash': sessionStorage.getItem('userHash')
-				}
-			})
-			.then(response => {
-				response.json().then(json => {
-					console.log(json)
-					if(json.success === 'true') {
-						sessionStorage.removeItem('userHash')
-						setUser('false')
-					}
-				})
-			})
-			.catch(error => {
-				console.log('User not authorized.')
-			})
-		}
-
-		if(userAuthorized === 'false') {
+		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
 			)
@@ -346,11 +367,7 @@ export default function App() {
 			return (
 				<main>
 					<section className='m-section'>
-						<div id='l-profileLinks'>
-							<NavLink to='/profile/' activeClassName='active'>Профиль</NavLink>
-							<NavLink to='/orders/' activeClassName='active'>Заказы</NavLink>
-							<a href='#' onClick={logout}>Выйти</a>
-						</div>
+						<ProfileLinks/>
 						<div id='l-personalInfo'></div>
 					</section>
 				</main>
@@ -374,12 +391,24 @@ export default function App() {
 		<Router>
 			<Header/>
 			<Switch>
-				<Route exact path='/auth/' component={Auth}/>
-				<Route exact path='/profile/' component={Profile}/>
-				<Route exact path='/orders/' component={Orders}/>
-				<Route exact path='/basket/' component={Basket}/>
-				<Route exact path='/delivery/' component={Delivery}/>
-				<Route exact path='/' component={Mainpage}/>
+				<Route path='/auth/'>
+					<Auth/>
+				</Route>
+				<Route path='/profile/'>
+					<Profile/>
+				</Route>
+				<Route path='/orders/'>
+					<Orders/>
+				</Route>
+				<Route path='/basket/'>
+					<Basket/>
+				</Route>
+				<Route path='/delivery/'>
+					<Delivery/>
+				</Route>
+				<Route path='/'>
+					<Mainpage/>
+				</Route>
 			</Switch>
 			<Footer/>
 		</Router>
