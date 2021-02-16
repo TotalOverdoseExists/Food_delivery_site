@@ -219,7 +219,6 @@ button:hover {
 	border-left: .1rem solid var(--grey);
 	border-right: .1rem solid var(--grey);
 	border-top-right-radius: 1rem;
-	color: var(--mainColor);
 }
 #l-profileLinks a.active {
 	color: var(--b);
@@ -227,14 +226,58 @@ button:hover {
 	border-right: .1rem solid var(--grey);
 	border-color: var(--mainColor);
 }
-#l-personalInfo {
+#l-personal {
 	background: var(--lightGrey);
 	width: 55rem;
 	margin: auto;
 	padding: 2.5rem 7rem;
 	border-radius: 0 0 1rem 1rem;
 }
-
+#l-personalInfo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 3rem;
+}
+#l-personalInfo h2 {
+	margin-bottom: 2rem;
+	flex: 100%;
+}
+#l-personalInfo article {
+	flex: calc(50% - 1rem);
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+#l-personalInfo article:nth-child(odd) {
+	margin-left: 1rem;
+}
+#l-personalInfo article:nth-child(even) {
+	margin-right: 1rem;
+}
+#l-personalInfo article p {
+	color: var(--darkGrey);
+	flex: 100%;
+}
+#l-personalInfo input:not([type='radio']) {
+	width: 100%;
+	padding: 1rem 1.5rem;
+	font-size: 1rem;
+	background: var(--w);
+	border-bottom: .1rem solid var(--darkGrey);
+}
+#l-personalInfo input[type='radio'] ~ label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	width: 50%;
+}
+#l-personalInfo button {
+	font-size: 1rem;
+}
 
 /*Module*/
 .m-logoImg {
@@ -242,6 +285,19 @@ button:hover {
 }
 .m-section {
 	padding: var(--padding);
+}
+.m-radioInput {
+	width: 50%;
+}
+.m-radioInput input {
+	display: none;
+}
+.m-radioInput input ~ label::before{
+	content: url(/src/img/unchecked.svg);
+	margin-right: .5rem;
+}
+.m-radioInput input:checked ~ label::before {
+	content: url(/src/img/checked.svg);
 }
 
 /*Theme*/

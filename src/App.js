@@ -40,33 +40,6 @@ export default function App() {
 		})
 	}
 
-	const getUserData = () => {
-		fetch(apiUrl + '/api/v1/get/user', {
-			method: 'get',
-			mode: 'cors',
-			headers: {
-				'authorization': apiKey,
-				'user-hash': sessionStorage.getItem('userHash')
-			}
-		})
-		.then(response => {
-			response.json().then(json => {
-				if(json.success) {
-					return {
-						'userTel': json.data.user.user_phone,
-						'userName': json.data.user.user_name,
-						'userMail': json.data.user.user_email,
-						'userBirthday': json.data.user.user_birthday,
-						'userGender': json.data.user.user_gender,
-						'userAddresses': json.data.address
-					}
-				}
-			})
-		})
-	}
-
-	console.log(getUserData)
-
 	function Header() {
 		let currentLocation = useLocation()
 	
@@ -289,6 +262,47 @@ export default function App() {
 	}
 	
 	function ProfileLinks() {
+		return(
+			<div id='l-profileLinks'>
+				<NavLink to='/profile/' activeClassName='active'>Профиль</NavLink>
+				<NavLink to='/orders/' activeClassName='active'>Заказы</NavLink>
+			</div>
+		)
+	}
+
+	function Profile() {
+		const [error, setError] = useState(null)
+		const [isLoaded, setIsLoaded] = useState(false)
+		const [items, setItems] = useState([])
+
+		useEffect(() => {
+			let isMounted = true
+
+			fetch(apiUrl + '/api/v1/get/user', {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				}
+			})
+			.then(response => response.json())
+			.then(
+				result => {
+					setIsLoaded(true)
+					setItems(result)
+				},
+				error => {
+					setIsLoaded(true)
+					setError(error)
+				}
+			)
+
+			return () => {
+				isMounted = false
+			}
+		}, [])
+
 		const logout = () => {
 			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
 				method: 'get',
@@ -307,53 +321,68 @@ export default function App() {
 				})
 			})
 			.catch(error => {
-				console.log(error)
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
 			})
 		}
 
-		return(
-			<div id='l-profileLinks'>
-				<NavLink to='/profile/' activeClassName='active'>Профиль</NavLink>
-				<NavLink to='/orders/' activeClassName='active'>Заказы</NavLink>
-				<a href='#' onClick={logout}>Выйти</a>
-			</div>
-		)
-	}
-
-	function Profile() {
 		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
 			)
 		}
 		else {
-			return (
-				<main>
-					<section className='m-section'>
-						<ProfileLinks/>
-						<div id='l-personalInfo'>
-							<h2>+7 (922) 418-8882</h2>
-							<article>
-								<input type='text' name='UserForm[name]' placeholder='Имя'/>
-							</article>
-							<article>
-								<input type='email' name='UserForm[email]' placeholder='E-mail'/>
-							</article>
-							<article>
-								<InputMask mask='99.99.9999' maskChar='_' alwaysShowMask='false'>
-									{(inputProps) => <input type='text' name='UserForm[birthday]' placeholder='День рождения'/>}
-								</InputMask>
-							</article>
-							<article>
-								<input type='radio' name='UserForm[gender]' value='m' id='male'/>
-								<label htmlFor='male'>Мужской</label>
-								<input type='radio' name='UserForm[gender]' value='f' id='female'/>
-								<label htmlFor='female'>Женский</label>
-							</article>
-						</div>
-					</section>
-				</main>
-			)
+			if(error) {
+				return <div>Error: {error.message}</div>
+			}
+			else if(!isLoaded) {
+				return <div>Loading...</div>
+			}
+			else {
+				return (
+					<main>
+						<section className='m-section'>
+							<ProfileLinks/>
+							<div id='l-personal'>
+								<form id='l-personalInfo'>
+									<h2>+79224188882</h2>
+									<article>
+										<input type='text' name='UserForm[name]' placeholder='Имя' defaultValue='Сергей'/>
+									</article>
+									<article>
+										<input type='email' name='UserForm[email]' placeholder='E-mail'/>
+									</article>
+									<article>
+										<InputMask mask='99.99.9999' maskChar='_' alwaysShowMask='false'>
+											{(inputProps) => <input type='text' name='UserForm[birthday]' placeholder='День рождения'/>}
+										</InputMask>
+									</article>
+									<article>
+										<p>Пол</p>
+										<div className='m-radioInput'>
+											<input type='radio' name='UserForm[gender]' value='m' id='male'/>
+											<label htmlFor='male'>Мужской</label>
+										</div>
+										<div className='m-radioInput'>
+											<input type='radio' name='UserForm[gender]' value='f' id='female'/>
+											<label htmlFor='female'>Женский</label>
+										</div>
+									</article>
+									<button type='submit'>Сохранить</button>
+									<button type='button' onClick={logout}>Выйти</button>
+								</form>
+								<div id='l-personalAddresses'>
+									<h3>Мои адреса</h3>
+									<a href='#'>Добавить адрес</a>
+									<article>
+										<p>Москва, 12-я Парковая улица, 6 12 </p>
+										<a href='#'>Удалить</a>
+									</article>
+								</div>
+							</div>
+						</section>
+					</main>
+				)
+			}
 		}
 	}
 	
