@@ -79,13 +79,19 @@ h1 {
 	text-transform: uppercase;
 	font-family: var(--extraBold);
 }
-input {
+input:not([type='radio']), input:not([type='checkbox']) {
+	width: 100%;
+	padding: 1rem 1.5rem;
+	font-family: var(--bold);
+	font-size: 1rem;
+	background: var(--w);
 	border-top: none;
 	border-left: none;
 	border-right: none;
-	background: var(--grey);
-	font-family: var(--bold);
-	font-size: 1.5rem;
+	border-bottom: .1rem solid var(--darkGrey);
+}
+input[type='radio'], input[type='checkbox'] {
+	display: none;
 }
 button {
 	font-family: var(--semibold);
@@ -188,7 +194,10 @@ button:hover {
 	flex-direction: column;
 }
 #l-authForm input {
+	background: var(--grey);
+	font-size: 1.5rem;
 	padding: 1rem 2rem;
+	border-bottom: none;
 }
 #l-authForm span {
 	margin: 2.5rem 0;
@@ -201,7 +210,7 @@ button:hover {
 	justify-content: space-between;
 }
 #l-profileLinks a {
-	flex: 1 0 auto;
+	flex: 50%;
 	text-align: center;
 	padding: 1rem 0;
 	border-top: .1rem solid var(--grey);
@@ -262,13 +271,6 @@ button:hover {
 	color: var(--darkGrey);
 	flex: 100%;
 }
-#l-personalInfo input:not([type='radio']) {
-	width: 100%;
-	padding: 1rem 1.5rem;
-	font-size: 1rem;
-	background: var(--w);
-	border-bottom: .1rem solid var(--darkGrey);
-}
 #l-personalInfo input[type='radio'] ~ label {
 	display: flex;
 	align-items: center;
@@ -277,6 +279,59 @@ button:hover {
 }
 #l-personalInfo button {
 	font-size: 1rem;
+}
+#l-personalAddresses {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+}
+#l-personalAddresses article {
+	flex: 100%;
+	margin: 1rem 0;
+	padding: 1rem;
+	background: var(--w);
+}
+#l-personalAddresses article span {
+	color: var(--darkGrey);
+}
+#l-modalAddressForm {
+	margin-top: 2rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+}
+#l-modalAddressForm article {
+	flex: calc(50% - 1rem);
+	margin-bottom: 2rem;
+}
+#l-modalAddressForm article:nth-child(odd) {
+	margin-right: 1rem;
+}
+#l-modalAddressForm article:nth-child(even) {
+	margin-left: 1rem;
+}
+#l-modalAddressForm button[type='submit'] {
+	font-size: 1rem;
+}
+#l-personalOrders article {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin: 1rem 0;
+	padding: 1rem;
+	background: var(--w);
+	text-align: center;
+}
+#l-personalOrders article div {
+	flex: 33.333333333%;
+	padding: 1rem;
+}
+#l-personalOrders article div span {
+	color: var(--darkGrey);
+	font-size: .9rem;
 }
 
 /*Module*/
@@ -298,6 +353,24 @@ button:hover {
 }
 .m-radioInput input:checked ~ label::before {
 	content: url(/src/img/checked.svg);
+}
+button.m-linkButton {
+	font-size: inherit;
+	color: var(--mainColor);
+	background: transparent;
+	padding: 0;
+	box-shadow: none;
+	text-decoration: underline;
+}
+button.m-linkButton:hover {
+	transform: none;
+}
+button.m-closeModalButton {
+	position: absolute;
+	right: 1.5rem;
+	top: 1rem;
+	text-decoration: none;
+	font-size: 1.5rem;
 }
 
 /*Theme*/
