@@ -10,23 +10,36 @@ import {
 } from 'react-router-dom'
 import InputMask from 'react-input-mask'
 import Modal from 'react-modal'
+import {Swiper, SwiperSlide} from 'swiper/react'
+import 'swiper/swiper-bundle.min.css'
 import './App.css'
 
 const apiKey = '3c0d4811f72089fdd67d6ec69ad06889fb03b88a'
 const apiUrl = 'https://api.musi4s.website'
 
-const modalStyles = {
-	content: {
-		top: '25%',
-		left: '25%',
-		right: '25%',
-		bottom: '25%',
-		borderRadius: '1rem',
-		padding: '2.5rem 5rem'
+Modal.setAppElement('#root')
+
+const reviewBreakpoints = {
+	320: {
+		slidesPerView: 1.5,
+		spaceBetween: 20
+	},
+	768: {
+		slidesPerView: 4,
+		spaceBetween: 20
 	}
 }
 
-Modal.setAppElement('#root')
+const catalogBreakpoints = {
+	320: {
+		slidesPerView: 1.5,
+		spaceBetween: 30
+	},
+	768: {
+		slidesPerView: 3.5,
+		spaceBetween: 30
+	}
+}
 
 export default function App() {
 	let [userAuthorized, setUserAuthorized] = useState(false)
@@ -51,6 +64,29 @@ export default function App() {
 		})
 		.catch(error => {
 			console.log(error)
+		})
+	}
+	
+	const callMe = e => {
+		e.preventDefault()
+
+		fetch(apiUrl + '/api/v1/post/requests', {
+			method: 'post',
+			mode: 'cors',
+			headers: {
+				'authorization': apiKey
+			},
+			body: new FormData(e.target)
+		})
+		.then(response => {
+			response.json().then(json => {
+				if(json.success) {
+					alert('Заявка отправлена!')
+				}
+			})
+		})
+		.catch(error => {
+			alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
 		})
 	}
 
@@ -98,10 +134,11 @@ export default function App() {
 							<article>
 								<a className='t-bigTel' href='tel:88007758232'>8 800 775 82 32</a>
 								<button className='m-linkButton' onClick={openModal}>Перезвоните мне</button>
-								<Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={modalStyles}>
+								<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
 									<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
 									<h2>Заказать обратный звонок</h2>
-									<form>
+									<form id='l-modalCallback' onSubmit={callMe}>
+										<input type='hidden' name='RequestForm[type]' value='callback'/>
 										<article>
 											<input type='text' name='RequestForm[name]' placeholder='Имя'/>
 										</article>
@@ -111,7 +148,12 @@ export default function App() {
 											</InputMask>
 										</article>
 										<article>
-											<input type='checkbox' name='RequestForm[agreement]' id='agreement'/>
+											<div className='m-checkboxInput'>
+												<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
+												<label htmlFor='agreement'>
+													<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+												</label>
+											</div>
 										</article>
 										<button type='submit'>Отправить</button>
 									</form>
@@ -190,12 +232,329 @@ export default function App() {
 			</footer>
 		)
 	}
+
+	function AccordeonItem(props) {
+		const [open, setOpen] = useState('s-closed')
+		const [minus, setminus] = useState('m-plus')
+
+		const openDesc = () => {
+			if(open === 's-closed') {
+				setOpen('s-opened')
+				setminus('m-minus')
+			}
+			else {
+				setOpen('s-closed')
+				setminus('m-plus')
+			}
+		}
+
+		return (
+			<div className='m-accordeonItem'>
+				<button onClick={openDesc}>
+					{props.name}
+					<span className={minus}>
+						<img src='/img/minus.svg'/>
+						<img src='/img/minus.svg'/>
+					</span>
+				</button>
+				<article className={open}>{props.desc}</article>
+			</div>
+		)
+	}
+
+	function HiddenText(props) {
+		const [open, setOpen] = useState('s-closed')
+		const [text, setText] = useState('Подробнее')
+
+		const openText = () => {
+			if(open === 's-closed') {
+				setOpen('s-opened')
+				setText('Свернуть')
+			}
+			else {
+				setOpen('s-closed')
+				setText('Подробнее')
+			}
+		}
+
+		return (
+			<div>
+				<div className={open}>{props.text}</div>
+				<button className='m-linkButton' onClick={openText}>{text}</button>
+			</div>
+		)
+	}
+
+	function Catalog() {
+		return (
+			<div id='l-catalog'>
+				<div className='m-catalogBlock'>
+					<h3>Выберите размер рациона:</h3>
+					<div className='m-catalogButtons'>
+						<button>XS</button>
+						<button className='active'>S</button>
+					</div>
+				</div>
+				<div className='m-catalogBlock'>
+					<h3>Примерное меню на неделю:</h3>
+					<div className='m-catalogButtons'>
+						<button className='active'><span>Понедельник</span><span>Пн</span></button>
+						<button><span>Вторник</span><span>Вт</span></button>
+					</div>
+					<div id='l-catalogSlider'>
+						<Swiper breakpoints={catalogBreakpoints}>
+							<SwiperSlide>
+								<img src="/img/catalog.png"/>
+								<span>Каша</span>
+							</SwiperSlide>
+						</Swiper>
+					</div>
+				</div>
+				<div className='m-catalogBlock'>
+					<div id='l-catalogDuration'>
+						<h3>Выберите продолжительность:</h3>
+						<div className='m-selectWindow'>
+							<span>3 дня: 700р в день</span>
+							<span>5 дней: 700р в день</span>
+						</div>
+						<button className='m-selectButton'>3 дня: 700р в день</button>
+					</div>
+					<div id='l-catalogPrice'>
+						<h3>Итого:</h3>
+						<p>16 500р</p>
+					</div>
+					<div id='l-catalogPurchase'>
+						<button>Заказать</button>
+					</div>
+				</div>
+			</div>
+		)
+	}
 	
 	function Mainpage() {
+		const [modalIsOpen, setIsOpen] = useState(false)
+
+		const openModal = () => {
+			setIsOpen(true)
+		}
+
+		const closeModal = () => {
+			setIsOpen(false)
+		}
+		
 		return (
 			<main>
+				<section id='l-banner' className='m-section'>
+					<h1>Готовим и доставляем еду на целый день</h1>
+					<ul>
+						<li>
+							<span>Разнообразнее, чем готовить самому<span>Меню не повторяется месяц</span></span>
+						</li>
+						<li>
+							<span>Дешевле, чем питаться в кафе<span>6 блюд за 550р в день</span></span>
+						</li>
+						<li>
+							<span>Полезнее, чем заказать пиццу<span>Полноценное питание</span></span>
+						</li>
+					</ul>
+					<button onClick={openModal}>Расскажите мне все</button>
+					<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
+						<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
+						<h2>Заказать обратный звонок</h2>
+						<form id='l-modalCallback' onSubmit={callMe}>
+							<input type='hidden' name='RequestForm[type]' value='callback'/>
+							<article>
+								<input type='text' name='RequestForm[name]' placeholder='Имя'/>
+							</article>
+							<article>
+								<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
+									{(inputProps) => <input type='tel' name='RequestForm[phone]'/>}
+								</InputMask>
+							</article>
+							<article>
+								<div className='m-checkboxInput'>
+									<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
+									<label htmlFor='agreement'>
+										<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+									</label>
+								</div>
+							</article>
+							<button type='submit'>Отправить</button>
+						</form>
+					</Modal>
+				</section>
+				<section className='m-section t-darkBackground'>
+					<div className='m-slider t-staticSlider'>
+						<article>
+							<img src='/img/time-passing.svg'/>
+							<h3>Получите 25-ый час</h3>
+							<hr/>
+							<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
+						</article>
+						<article>
+							<img src='/img/container.svg'/>
+							<h3>Питайтесь, где удобно</h3>
+							<hr/>
+							<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
+						</article>
+						<article>
+							<img src='/img/cook-book.svg'/>
+							<h3>Наслаждайтесь едой</h3>
+							<hr/>
+							<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
+						</article>
+					</div>
+					<div className='m-slider t-dynamicSlider'>
+						<Swiper spaceBetween={50} slidesPerView={1.5}>
+							<SwiperSlide>
+								<article>
+									<img src='/img/time-passing.svg'/>
+									<h3>Получите 25-ый час</h3>
+									<hr/>
+									<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
+								</article>
+							</SwiperSlide>
+							<SwiperSlide>
+								<article>
+									<img src='/img/container.svg'/>
+									<h3>Питайтесь, где удобно</h3>
+									<hr/>
+									<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
+								</article>
+							</SwiperSlide>
+							<SwiperSlide>
+								<article>
+									<img src='/img/cook-book.svg'/>
+									<h3>Наслаждайтесь едой</h3>
+									<hr/>
+									<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
+								</article>
+							</SwiperSlide>
+						</Swiper>
+					</div>
+				</section>
 				<section className='m-section'>
-
+					<Catalog/>
+				</section>
+				<section className='t-grey m-section'>
+					<div className='m-twoColumns'>
+						<article>
+							<h2>Где мы готовим?</h2>
+							<p>Все блюда мы готовим на собственном производстве с использованием новейшего и современного оборудования.</p>
+						</article>
+						<article>
+							<img src='/img/cook.jpg'/>
+						</article>
+					</div>
+				</section>
+				<section className='m-section t-darkBackground'>
+					<h2>Оплата и доставка</h2>
+					<div className='m-slider t-staticSlider'>
+						<article>
+							<img src='/img/delivery-guy.svg'/>
+							<h3>График доставки</h3>
+							<hr/>
+							<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
+						</article>
+						<article>
+							<img src='/img/schedule.svg'/>
+							<h3>«Дни заморозки»</h3>
+							<hr/>
+							<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
+						</article>
+						<article>
+							<img src='/img/cash.svg'/>
+							<h3>Способы оплаты</h3>
+							<hr/>
+							<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
+						</article>
+					</div>
+					<div className='m-slider t-dynamicSlider'>
+						<Swiper spaceBetween={50} slidesPerView={1.5}>
+							<SwiperSlide>
+								<article>
+									<img src='/img/delivery-guy.svg'/>
+									<h3>График доставки</h3>
+									<hr/>
+									<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
+								</article>
+							</SwiperSlide>
+							<SwiperSlide>
+								<article>
+									<img src='/img/schedule.svg'/>
+									<h3>«Дни заморозки»</h3>
+									<hr/>
+									<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
+								</article>
+							</SwiperSlide>
+							<SwiperSlide>
+								<article>
+									<img src='/img/cash.svg'/>
+									<h3>Способы оплаты</h3>
+									<hr/>
+									<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
+								</article>
+							</SwiperSlide>
+						</Swiper>
+					</div>
+				</section>
+				<section className='t-grey m-section'>
+					<div className='m-twoColumns'>
+						<article>
+							<h2>Частые вопросы</h2>
+							<p>Если вы не нашли ответа на ваш вопрос, наши менеджеры с радостью вам помогут</p>
+							<p>Остались вопросы?</p>
+							<button onClick={openModal}>Расскажите мне все</button>
+						</article>
+						<article>
+							<AccordeonItem name='Где вы это всё готовите?' desc='Все блюда мы готовим на собственных производствах'/>
+							<AccordeonItem name='Где вы это всё готовите?' desc='Все блюда мы готовим на собственных производствах'/>
+						</article>
+					</div>
+				</section>
+				<section className='m-section'>
+					<h2>Отзывы</h2>
+					<Swiper breakpoints={reviewBreakpoints}>
+						<SwiperSlide>
+							<img src='/img/review.jpg'/>
+						</SwiperSlide>
+						<SwiperSlide>
+							<img src='/img/review.jpg'/>
+						</SwiperSlide>
+						<SwiperSlide>
+							<img src='/img/review.jpg'/>
+						</SwiperSlide>
+						<SwiperSlide>
+							<img src='/img/review.jpg'/>
+						</SwiperSlide>
+						<SwiperSlide>
+							<img src='/img/review.jpg'/>
+						</SwiperSlide>
+					</Swiper>
+				</section>
+				<section className='t-grey m-section'>
+					<div id='l-subscribe'>
+						<article>
+							<h2>Подпишитесь на наши соцсети</h2>
+							<p>Чтобы своевременно получать информацию о новых блюдах, акциях, конкурсах и мероприятиях.</p>
+						</article>
+						<article>
+							<a href='https://www.instagram.com/' target='_blank' rel='noreferrer'>
+								<img src='/img/instagram.svg' alt='instagram'/>
+							</a>
+							<a href='https://vk.com/' target='_blank' rel='noreferrer'>
+								<img src='/img/vk.svg' alt='vkontakte'/>
+							</a>
+							<a href='https://www.facebook.com/' target='_blank' rel='noreferrer'>
+								<img src='/img/fb.svg' alt='facebook'/>
+							</a>
+						</article>
+					</div>
+				</section>
+				<section id='l-about' className='m-section'>
+					<h3>Знакомьтесь, My Food – один из лучших сервисов доставки еды в Москве, Санкт-Петербурге, Екатеринбурге, Краснодаре, Ростове-на-Дону, Челябинске, Калуге, Рязани, Ярославле, Владимире, Туле и Твери</h3>
+					<p>Мы работаем в Москве, Санкт-Петербурге, Екатеринбурге, Краснодаре, Ростове-на-Дону, Челябинске, Калуге, Рязани, Ярославле, Владимире, Туле и Твери. В каждом городе у нас собственное производство. Цель нашей компании — обеспечить вас готовой и вкусной едой на каждый день. Больше не нужно самостоятельно решать, какие блюда приготовить на завтрак, обед и ужин и что взять на работу. Мы сами доставим вкусную готовую еду на дом в удобное утреннее время и место. Вам необходимо только выбрать подходящий рацион и указать адрес доставки. На нашем сайте вы найдете 2 линейки с программами — Classic (во всех городах) и Platinum (только Москва и Санкт-Петербург).</p>
+					<HiddenText text='Some text'/>
 				</section>
 			</main>
 		)
@@ -459,10 +818,22 @@ export default function App() {
 		}
 		else {
 			if(error) {
-				return <div>Error: {error.message}</div>
+				return (
+					<main>
+						<section className='m-section'>
+							<h2>Error: {error.message}</h2>
+						</section>
+					</main>
+				)
 			}
 			else if(!isLoaded) {
-				return <div>Loading...</div>
+				return (
+					<main>
+						<section className='m-section'>
+							<h2>Loading...</h2>
+						</section>
+					</main>
+				)
 			}
 			else {
 				return (
@@ -500,7 +871,7 @@ export default function App() {
 								<div id='l-personalAddresses'>
 									<h3>Мои адреса</h3>
 									<button className='m-linkButton' onClick={openModal}>Добавить адрес</button>
-									<Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={modalStyles}>
+									<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
 										<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
 										<h2>Добавить новый адрес</h2>
 										<form id='l-modalAddressForm' onSubmit={addAddress}>

@@ -28,6 +28,7 @@
 	--grey: #e1e1e1;
 	--darkGrey: #9da3ad;
 	--mainColor: #fb5a16;
+	--dark: #353535;
 	--padding: 4rem 12.5rem;
 }
 
@@ -44,6 +45,9 @@ html {
 	background: var(--w);
 	font-size: 1vw;
 	font-family: var(--semibold), sans-serif;
+}
+body, html {
+	height: 100%;
 }
 a, a:hover, a:focus, a:active {
 	color: var(--mainColor);
@@ -75,7 +79,6 @@ footer span {
 h1 {
 	font-size: 3.3rem;
 	margin-bottom: 4rem;
-	text-align: center;
 	text-transform: uppercase;
 	font-family: var(--extraBold);
 }
@@ -89,9 +92,6 @@ input:not([type='radio']), input:not([type='checkbox']) {
 	border-left: none;
 	border-right: none;
 	border-bottom: .1rem solid var(--darkGrey);
-}
-input[type='radio'], input[type='checkbox'] {
-	display: none;
 }
 button {
 	font-family: var(--semibold);
@@ -108,6 +108,9 @@ button {
 }
 button:hover {
 	transform: translateY(.3rem);
+}
+img {
+	max-width: 100%;
 }
 
 /*Layout*/
@@ -186,6 +189,46 @@ button:hover {
 }
 #l-footerInfo {
 	text-align: right;
+}
+#l-banner {
+	background: url(/src/img/banner.png) scroll no-repeat bottom right;
+	padding-right: 40vw;
+}
+#l-banner ul {
+	list-style-type: none;
+	font-size: 1.25rem;
+	margin-bottom: 4rem;
+}
+#l-banner ul li {
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+}
+#l-banner ul li::before {
+	content: url(/src/img/checked.svg);
+	margin-right: 1rem;
+}
+#l-banner ul li > span > span {
+	display: block;
+	font-size: 1.5rem;
+	color: var(--mainColor);
+}
+#l-catalog h3 {
+	font-size: 2rem;
+	margin-bottom: 2rem;
+}
+#l-catalog .m-catalogBlock {
+	margin-bottom: 3.5rem;
+}
+#l-catalogSlider {
+	margin-top: 2rem;
+	text-align: center;
+}
+#l-catalogSlider img {
+	margin-bottom: 1rem;
+}
+#l-catalogSlider span {
+	color: var(--darkGrey);
 }
 #l-authForm {
 	width: 37.5rem;
@@ -333,6 +376,43 @@ button:hover {
 	color: var(--darkGrey);
 	font-size: .9rem;
 }
+#l-modalCallback {
+	display: flex;
+	flex-direction: column;
+}
+#l-modalCallback article {
+	margin: 1rem 0;
+}
+#l-modalCallback article input {
+	background: var(--lightGrey);
+}
+#l-subscribe {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#l-subscribe article:first-child {
+	width: 30rem;
+	margin-right: 6.5rem;
+}
+#l-subscribe h2 {
+	font-size: 2rem;
+}
+#l-subscribe a {
+	margin-right: 2rem;
+}
+#l-subscribe a:last-child {
+	margin-right: 0;
+}
+#l-about h3 {
+	font-family: var(--extraBold);
+	font-size: 2rem;
+	margin-bottom: 2rem;
+}
+#l-about p {
+	color: var(--darkGrey);
+	margin-bottom: 1.5rem;
+}
 
 /*Module*/
 .m-logoImg {
@@ -340,6 +420,10 @@ button:hover {
 }
 .m-section {
 	padding: var(--padding);
+}
+.m-section h2 {
+	font-size: 2.5rem;
+	margin-bottom: 1.5rem;
 }
 .m-radioInput {
 	width: 50%;
@@ -353,6 +437,26 @@ button:hover {
 }
 .m-radioInput input:checked ~ label::before {
 	content: url(/src/img/checked.svg);
+}
+.m-checkboxInput input {
+	display: none;
+}
+.m-checkboxInput input ~ label {
+	display: flex;
+	align-items: center;
+}
+.m-checkboxInput input ~ label::before {
+	content: '';
+	width: .8rem;
+	height: .8rem;
+	margin-right: .5rem;
+	border: .1rem solid var(--darkGrey);
+	cursor: pointer;
+	color: var(--mainColor);
+	line-height: 1rem;
+}
+.m-checkboxInput input:checked ~ label::before {
+	content: '\2714';
 }
 button.m-linkButton {
 	font-size: inherit;
@@ -371,6 +475,132 @@ button.m-closeModalButton {
 	top: 1rem;
 	text-decoration: none;
 	font-size: 1.5rem;
+}
+.m-modalOverlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, .7);
+	display: flex;
+}
+.m-modal {
+	position: relative;
+	margin: auto;
+	background: var(--w);
+	border-radius: 1rem;
+	padding: 2.5rem;
+	max-width: 50vw;
+}
+.m-slider {
+	align-items: flex-start;
+	justify-content: space-between;
+	color: var(--w);
+}
+.m-slider article {
+	flex: 0 0 18rem;
+}
+.m-slider img {
+	max-height: 4rem;
+	margin-bottom: 2rem;
+}
+.m-slider hr {
+	height: .3rem;
+	border: none;
+	border-radius: 1rem;
+	background: var(--w);
+	margin: .5rem 0;
+}
+.m-catalogButtons {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.m-catalogButtons button {
+	border: .2rem solid var(--grey);
+	background: none;
+	color: var(--b);
+	box-shadow: none;
+	padding: .2rem;
+	flex: auto;
+	margin-right: 1.5rem;
+}
+.m-catalogButtons button:last-child {
+	margin-right: 0;
+}
+.m-catalogButtons button:hover {
+	transform: none;
+}
+.m-catalogButtons button.active {
+	color: var(--w);
+	border: none;
+	background: var(--mainColor);
+}
+.m-catalogButtons button > span:last-child {
+	display: none;
+}
+.m-twoColumns {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+.m-twoColumns article {
+	flex: 0 0 50%;
+}
+.m-twoColumns h2 {
+	font-size: 2.5rem;
+	margin-bottom: 1.5rem;
+}
+.m-twoColumns p {
+	font-size: 1.25rem;
+	padding-right: 6rem;
+	margin-bottom: 1rem;
+}
+.m-accordeonItem {
+	border-bottom: .2rem solid var(--darkGrey);
+	margin-bottom: 1.5rem;
+}
+.m-accordeonItem button {
+	color: var(--b);
+	font-size: 1.3rem;
+	background: none;
+	border-radius: 0;
+	padding: 0;
+	margin-bottom: 1.5rem;
+	box-shadow: none;
+	width: 100%;
+	text-align: left;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.m-accordeonItem button:hover {
+	transform: none;
+}
+.m-accordeonItem article {
+	margin-bottom: 1.5rem;
+}
+.m-plus {
+	flex: 0 0 1.5rem;
+	height: 1.5rem;
+	position: relative;
+	overflow: hidden;
+}
+.m-plus img {
+	position: absolute;
+	top: 40%;
+}
+.m-plus img:last-child {
+	transform: rotate(90deg);
+}
+.m-minus {
+	flex: 0 0 1.5rem;
+	height: 1.5rem;
+	position: relative;
+	overflow: hidden;
+}
+.m-minus img {
+	position: absolute;
+	top: 40%;
 }
 
 /*Theme*/
@@ -396,8 +626,47 @@ button.m-closeModalButton {
 .t-timerButton:hover {
 	transform: none;
 }
+.t-darkBackground {
+	background: var(--dark);
+}
+.t-darkBackground h2 {
+	font-size: 2.5rem;
+	margin-bottom: 1.5rem;
+	color: var(--w);
+}
+.t-staticSlider {
+	display: flex;
+}
+.t-dynamicSlider {
+	display: none;
+}
+.t-grey {
+	background: var(--grey);
+}
 
 /*State*/
 .s-hidden {
 	display: none;
+}
+.s-closed {
+	display: none;
+}
+.s-opened {
+	display: block;
+}
+
+/*Media*/
+@media (max-width: 767px) {
+	.t-staticSlider {
+		display: none;
+	}
+	.t-dynamicSlider {
+		display: block;
+	}
+	.m-catalogButtons button > span:first-child {
+		display: none;
+	}
+	.m-catalogButtons button > span:last-child {
+		display: inline;
+	}
 }
