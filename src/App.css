@@ -81,6 +81,7 @@ h1 {
 	margin-bottom: 4rem;
 	text-transform: uppercase;
 	font-family: var(--extraBold);
+	text-align: center;
 }
 input:not([type='radio']), input:not([type='checkbox']) {
 	width: 100%;
@@ -194,6 +195,9 @@ img {
 	background: url(/src/img/banner.png) scroll no-repeat bottom right;
 	padding-right: 40vw;
 }
+#l-banner h1 {
+	text-align: left;
+}
 #l-banner ul {
 	list-style-type: none;
 	font-size: 1.25rem;
@@ -229,6 +233,56 @@ img {
 }
 #l-catalogSlider span {
 	color: var(--darkGrey);
+}
+#l-catalogTotal {
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: stretch;
+	justify-content: space-between;
+}
+#l-catalogTotal button {
+	width: 100%;
+}
+#l-catalogTotal button:hover {
+	transform: none;
+}
+#l-catalogPurchase, #l-catalogPrice {
+	flex: 0 0 25%;
+	transition: .5s;
+}
+#l-catalogPrice {
+	padding: 0 1.25rem;
+	border-left: .25rem solid var(--lightGrey);
+	border-right: .25rem solid var(--lightGrey);
+}
+#l-catalogPrice p {
+	font-family: var(--regular);
+	font-size: 4rem;
+	color: var(--dark);
+}
+#l-catalogPurchase {
+	padding-left: 1.25rem;
+	display: flex;
+}
+#l-catalogDuration {
+	flex: 0 0 50%;
+	transition: .5s;
+	opacity: 1;
+	padding-right: 1.25rem;
+}
+#l-catalogPurchase:hover {
+	flex: 0 0 75%;
+}
+#l-catalogPurchase:hover ~ #l-catalogDuration {
+	opacity: 0;
+}
+#l-catalogPurchase:hover ~ #l-catalogPrice {
+	border-left: 0;
+}
+#l-catalogPurchase button {
+	text-transform: uppercase;
+	font-size: 2rem;
+	letter-spacing: .2rem;
 }
 #l-authForm {
 	width: 37.5rem;
@@ -386,6 +440,9 @@ img {
 #l-modalCallback article input {
 	background: var(--lightGrey);
 }
+#l-modalCallback button {
+	width: 100%;
+}
 #l-subscribe {
 	display: flex;
 	align-items: center;
@@ -481,6 +538,7 @@ button.m-closeModalButton {
 	inset: 0;
 	background: rgba(0, 0, 0, .7);
 	display: flex;
+	z-index: 999;
 }
 .m-modal {
 	position: relative;
@@ -536,6 +594,21 @@ button.m-closeModalButton {
 }
 .m-catalogButtons button > span:last-child {
 	display: none;
+}
+.m-selectWindow {
+	display: none;
+}
+.m-selectButton {
+	color: var(--b);
+	border: .2rem solid var(--grey);
+	background: none;
+	box-shadow: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.m-selectButton img {
+	transform: rotate(180deg);
 }
 .m-twoColumns {
 	display: flex;

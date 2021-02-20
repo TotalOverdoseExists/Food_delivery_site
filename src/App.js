@@ -42,7 +42,9 @@ const catalogBreakpoints = {
 }
 
 export default function App() {
-	let [userAuthorized, setUserAuthorized] = useState(false)
+	const [userAuthorized, setUserAuthorized] = useState(false)
+	const [basketSize, setBasketSize] = useState('XS')
+	const [basketSumm, setBasketSumm] = useState(0)
 
 	if(sessionStorage.getItem('userHash')) {
 		fetch(apiUrl + '/api/v1/get/auth', {
@@ -253,8 +255,8 @@ export default function App() {
 				<button onClick={openDesc}>
 					{props.name}
 					<span className={minus}>
-						<img src='/img/minus.svg'/>
-						<img src='/img/minus.svg'/>
+						<img src='/img/minus.svg' alt=''/>
+						<img src='/img/minus.svg' alt=''/>
 					</span>
 				</button>
 				<article className={open}>{props.desc}</article>
@@ -286,13 +288,60 @@ export default function App() {
 	}
 
 	function Catalog() {
+		const [basketDay, setBasketDay] = useState('')
+		const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
+		const [quickOpen, setQuickOpen] = useState(false)
+
+		const openPurchaseModal = () => {
+			setPurchaseModalOpen(true)
+		}
+
+		const closePurchaseModal = () => {
+			setPurchaseModalOpen(false)
+		}
+
+		const openQuick = () => {
+			setPurchaseModalOpen(false)
+			setQuickOpen(true)
+		}
+
+		const closeQuick = () => {
+			setQuickOpen(false)
+		}
+
+		const quick = e => {
+			e.preventDefault()
+	
+			fetch(apiUrl + '/api/v1/post/orders?type=quickly', {
+				method: 'post',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey
+				},
+				body: new FormData(e.target)
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						alert('Заявка отправлена!')
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+		}
+
 		return (
 			<div id='l-catalog'>
 				<div className='m-catalogBlock'>
 					<h3>Выберите размер рациона:</h3>
 					<div className='m-catalogButtons'>
-						<button>XS</button>
-						<button className='active'>S</button>
+						<button className='active'>XS</button>
+						<button>S</button>
+						<button>M</button>
+						<button>L</button>
+						<button>XL</button>
 					</div>
 				</div>
 				<div className='m-catalogBlock'>
@@ -300,31 +349,90 @@ export default function App() {
 					<div className='m-catalogButtons'>
 						<button className='active'><span>Понедельник</span><span>Пн</span></button>
 						<button><span>Вторник</span><span>Вт</span></button>
+						<button><span>Среда</span><span>Ср</span></button>
+						<button><span>Четверг</span><span>Чт</span></button>
+						<button><span>Пятница</span><span>Пт</span></button>
+						<button><span>Суббота</span><span>Сб</span></button>
+						<button><span>Воскресенье</span><span>Вс</span></button>
 					</div>
 					<div id='l-catalogSlider'>
 						<Swiper breakpoints={catalogBreakpoints}>
 							<SwiperSlide>
-								<img src="/img/catalog.png"/>
+								<img src='/img/catalog.png' alt=''/>
+								<span>Каша</span>
+							</SwiperSlide>
+							<SwiperSlide>
+								<img src='/img/catalog.png' alt=''/>
+								<span>Каша</span>
+							</SwiperSlide>
+							<SwiperSlide>
+								<img src='/img/catalog.png' alt=''/>
+								<span>Каша</span>
+							</SwiperSlide>
+							<SwiperSlide>
+								<img src='/img/catalog.png' alt=''/>
+								<span>Каша</span>
+							</SwiperSlide>
+							<SwiperSlide>
+								<img src='/img/catalog.png' alt=''/>
 								<span>Каша</span>
 							</SwiperSlide>
 						</Swiper>
 					</div>
 				</div>
-				<div className='m-catalogBlock'>
+				<div id='l-catalogTotal' className='m-catalogBlock'>
+					<div id='l-catalogPurchase'>
+						<button onClick={openPurchaseModal}>Заказать</button>
+						<Modal isOpen={purchaseModalOpen} onRequestClose={closePurchaseModal} overlayClassName='m-modalOverlay' className='m-modal'>
+							<button className='m-linkButton m-closeModalButton' onClick={closePurchaseModal}>&#10006;</button>
+							<h2>Оформление заказа</h2>
+							<form id='l-modalCallback'>
+								<article>
+									<span>Выберите удобный для Вас способ:</span>
+								</article>
+								<article>
+									<button onClick={openQuick}>Мгновенный заказ</button>
+								</article>
+								<article>
+									<button>Оформить на сайте</button>
+								</article>
+							</form>
+						</Modal>
+						<Modal isOpen={quickOpen} onRequestClose={closeQuick} overlayClassName='m-modalOverlay' className='m-modal'>
+							<button className='m-linkButton m-closeModalButton' onClick={closeQuick}>&#10006;</button>
+							<h2>Мгновенный заказ</h2>
+							<form id='l-modalCallback'>
+								<article>
+									<input type='text' name='RequestForm[name]' placeholder='Имя'/>
+								</article>
+								<article>
+									<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
+										{(inputProps) => <input type='tel' name='RequestForm[phone]'/>}
+									</InputMask>
+								</article>
+								<article>
+									<div className='m-checkboxInput'>
+										<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
+										<label htmlFor='agreement'>
+											<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+										</label>
+									</div>
+								</article>
+								<button type='submit'>Отправить</button>
+							</form>
+						</Modal>
+					</div>
+					<div id='l-catalogPrice'>
+						<h3>Итого:</h3>
+						<p>16 500р</p>
+					</div>
 					<div id='l-catalogDuration'>
 						<h3>Выберите продолжительность:</h3>
 						<div className='m-selectWindow'>
 							<span>3 дня: 700р в день</span>
 							<span>5 дней: 700р в день</span>
 						</div>
-						<button className='m-selectButton'>3 дня: 700р в день</button>
-					</div>
-					<div id='l-catalogPrice'>
-						<h3>Итого:</h3>
-						<p>16 500р</p>
-					</div>
-					<div id='l-catalogPurchase'>
-						<button>Заказать</button>
+						<button className='m-selectButton'>3 дня: 700р в день <img src='/img/arrow.svg' alt=''/></button>
 					</div>
 				</div>
 			</div>
@@ -386,19 +494,19 @@ export default function App() {
 				<section className='m-section t-darkBackground'>
 					<div className='m-slider t-staticSlider'>
 						<article>
-							<img src='/img/time-passing.svg'/>
+							<img src='/img/time-passing.svg' alt=''/>
 							<h3>Получите 25-ый час</h3>
 							<hr/>
 							<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
 						</article>
 						<article>
-							<img src='/img/container.svg'/>
+							<img src='/img/container.svg' alt=''/>
 							<h3>Питайтесь, где удобно</h3>
 							<hr/>
 							<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
 						</article>
 						<article>
-							<img src='/img/cook-book.svg'/>
+							<img src='/img/cook-book.svg' alt=''/>
 							<h3>Наслаждайтесь едой</h3>
 							<hr/>
 							<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
@@ -408,7 +516,7 @@ export default function App() {
 						<Swiper spaceBetween={50} slidesPerView={1.5}>
 							<SwiperSlide>
 								<article>
-									<img src='/img/time-passing.svg'/>
+									<img src='/img/time-passing.svg' alt=''/>
 									<h3>Получите 25-ый час</h3>
 									<hr/>
 									<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
@@ -416,7 +524,7 @@ export default function App() {
 							</SwiperSlide>
 							<SwiperSlide>
 								<article>
-									<img src='/img/container.svg'/>
+									<img src='/img/container.svg' alt=''/>
 									<h3>Питайтесь, где удобно</h3>
 									<hr/>
 									<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
@@ -424,7 +532,7 @@ export default function App() {
 							</SwiperSlide>
 							<SwiperSlide>
 								<article>
-									<img src='/img/cook-book.svg'/>
+									<img src='/img/cook-book.svg' alt=''/>
 									<h3>Наслаждайтесь едой</h3>
 									<hr/>
 									<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
@@ -443,7 +551,7 @@ export default function App() {
 							<p>Все блюда мы готовим на собственном производстве с использованием новейшего и современного оборудования.</p>
 						</article>
 						<article>
-							<img src='/img/cook.jpg'/>
+							<img src='/img/cook.jpg' alt=''/>
 						</article>
 					</div>
 				</section>
@@ -451,19 +559,19 @@ export default function App() {
 					<h2>Оплата и доставка</h2>
 					<div className='m-slider t-staticSlider'>
 						<article>
-							<img src='/img/delivery-guy.svg'/>
+							<img src='/img/delivery-guy.svg' alt=''/>
 							<h3>График доставки</h3>
 							<hr/>
 							<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
 						</article>
 						<article>
-							<img src='/img/schedule.svg'/>
+							<img src='/img/schedule.svg' alt=''/>
 							<h3>«Дни заморозки»</h3>
 							<hr/>
 							<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
 						</article>
 						<article>
-							<img src='/img/cash.svg'/>
+							<img src='/img/cash.svg' alt=''/>
 							<h3>Способы оплаты</h3>
 							<hr/>
 							<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
@@ -473,7 +581,7 @@ export default function App() {
 						<Swiper spaceBetween={50} slidesPerView={1.5}>
 							<SwiperSlide>
 								<article>
-									<img src='/img/delivery-guy.svg'/>
+									<img src='/img/delivery-guy.svg' alt=''/>
 									<h3>График доставки</h3>
 									<hr/>
 									<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
@@ -481,7 +589,7 @@ export default function App() {
 							</SwiperSlide>
 							<SwiperSlide>
 								<article>
-									<img src='/img/schedule.svg'/>
+									<img src='/img/schedule.svg' alt=''/>
 									<h3>«Дни заморозки»</h3>
 									<hr/>
 									<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
@@ -489,7 +597,7 @@ export default function App() {
 							</SwiperSlide>
 							<SwiperSlide>
 								<article>
-									<img src='/img/cash.svg'/>
+									<img src='/img/cash.svg' alt=''/>
 									<h3>Способы оплаты</h3>
 									<hr/>
 									<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
@@ -516,19 +624,19 @@ export default function App() {
 					<h2>Отзывы</h2>
 					<Swiper breakpoints={reviewBreakpoints}>
 						<SwiperSlide>
-							<img src='/img/review.jpg'/>
+							<img src='/img/review.jpg' alt=''/>
 						</SwiperSlide>
 						<SwiperSlide>
-							<img src='/img/review.jpg'/>
+							<img src='/img/review.jpg' alt=''/>
 						</SwiperSlide>
 						<SwiperSlide>
-							<img src='/img/review.jpg'/>
+							<img src='/img/review.jpg' alt=''/>
 						</SwiperSlide>
 						<SwiperSlide>
-							<img src='/img/review.jpg'/>
+							<img src='/img/review.jpg' alt=''/>
 						</SwiperSlide>
 						<SwiperSlide>
-							<img src='/img/review.jpg'/>
+							<img src='/img/review.jpg' alt=''/>
 						</SwiperSlide>
 					</Swiper>
 				</section>
@@ -561,11 +669,11 @@ export default function App() {
 	}
 	
 	function Auth() {
-		let [telInput, setTelInput] = useState('tel')
-		let [codeInput, setCodeInput] = useState('hidden')
-		let [timerButtonClass, setTimerButtonClass] = useState('s-hidden')
-		let [counter, setCounter] = useState(0)
-		let [continueButton, setContinueButton] = useState('submit')
+		const [telInput, setTelInput] = useState('tel')
+		const [codeInput, setCodeInput] = useState('hidden')
+		const [timerButtonClass, setTimerButtonClass] = useState('s-hidden')
+		const [counter, setCounter] = useState(0)
+		const [continueButton, setContinueButton] = useState('submit')
 		
 		const formatTime = time => {
 			const minutes = Math.floor(time / 60)
@@ -1008,7 +1116,11 @@ export default function App() {
 	
 	function Basket() {
 		return (
-			<h1>Basket</h1>
+			<main>
+				<section className='m-section'>
+					
+				</section>
+			</main>
 		)
 	}
 
