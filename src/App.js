@@ -95,7 +95,25 @@ export default function App() {
 	function Header() {
 		let currentLocation = useLocation()
 		const [modalIsOpen, setIsOpen] = useState(false)
-	
+		const [menuIsOpen, setMenuIsOpen] = useState(false)
+
+		const openModal = () => {
+			setMenuIsOpen(false)
+			setIsOpen(true)
+		}
+
+		const closeModal = () => {
+			setIsOpen(false)
+		}
+
+		const openMenu = () => {
+			setMenuIsOpen(true)
+		}
+
+		const closeMenu = () => {
+			setMenuIsOpen(false)
+		}
+
 		const ProfileLink = () => {
 			if(userAuthorized) {
 				return (
@@ -108,14 +126,6 @@ export default function App() {
 				)
 			}
 		}
-
-		const openModal = () => {
-			setIsOpen(true)
-		}
-
-		const closeModal = () => {
-			setIsOpen(false)
-		}
 	
 		if(currentLocation.pathname === '/') {
 			return (
@@ -127,9 +137,9 @@ export default function App() {
 					<div id='l-menuPanel'>
 						<Link to='/'><img className='m-logoImg' src='/img/logo.svg' alt='логотип компании'/></Link>
 						<nav>
-							<a href='#prices'>Цены</a>
-							<a href='#delivery'>Оплата и доставка</a>
-							<a href='#about'>О нас</a>
+							<a href='#l-catalog'>Цены</a>
+							<a href='#l-delivery'>Оплата и доставка</a>
+							<a href='#l-about'>О нас</a>
 						</nav>
 						<div id='l-headerTimeAndTel'>
 							<span>с 8:00 до 22:00</span>
@@ -162,6 +172,24 @@ export default function App() {
 								</Modal>
 							</article>
 						</div>
+					</div>
+					<div id='l-mobileHeader'>
+						<Link to='/'><img className='m-logoImg' src='/img/logo.svg' alt='логотип компании'/></Link>
+						<article>
+							<a className='t-bigTel' href='tel:88007758232'>8 800 775 82 32</a>
+							<span>с 8:00 до 22:00</span>
+						</article>
+						<button onClick={openMenu}>&#9776;</button>
+						<Modal isOpen={menuIsOpen} onRequestClose={closeMenu} overlayClassName='m-modalOverlay' className='m-modalMenu'>
+							<button className='m-linkButton m-closeModalButton' onClick={closeMenu}>&#10006;</button>
+							<article>
+								<ProfileLink/>
+								<a onClick={closeMenu} href='#l-catalog'>Цены</a>
+								<a onClick={closeMenu} href='#l-delivery'>Оплата и доставка</a>
+								<a onClick={closeMenu} href='#l-about'>О нас</a>
+								<button onClick={openModal}>Заказать</button>
+							</article>
+						</Modal>
 					</div>
 				</header>
 			)
@@ -291,6 +319,7 @@ export default function App() {
 		const [basketDay, setBasketDay] = useState('')
 		const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
 		const [quickOpen, setQuickOpen] = useState(false)
+		const [selectOpen, setSelectOpen] = useState('s-closed')
 
 		const openPurchaseModal = () => {
 			setPurchaseModalOpen(true)
@@ -307,6 +336,15 @@ export default function App() {
 
 		const closeQuick = () => {
 			setQuickOpen(false)
+		}
+
+		const toggleSelect = () => {
+			if(selectOpen == 's-closed') {
+				setSelectOpen('s-opened')
+			}
+			else {
+				setSelectOpen('s-closed')
+			}
 		}
 
 		const quick = e => {
@@ -428,11 +466,13 @@ export default function App() {
 					</div>
 					<div id='l-catalogDuration'>
 						<h3>Выберите продолжительность:</h3>
-						<div className='m-selectWindow'>
-							<span>3 дня: 700р в день</span>
-							<span>5 дней: 700р в день</span>
+						<div className='m-select'>
+							<article className={selectOpen}>
+								<span>3 дня: 700р в день</span>
+								<span>5 дней: 700р в день</span>
+							</article>
+							<button onClick={toggleSelect}>3 дня: 700р в день <img src='/img/arrow.svg' alt=''/></button>
 						</div>
-						<button className='m-selectButton'>3 дня: 700р в день <img src='/img/arrow.svg' alt=''/></button>
 					</div>
 				</div>
 			</div>
@@ -544,7 +584,7 @@ export default function App() {
 				<section className='m-section'>
 					<Catalog/>
 				</section>
-				<section className='t-grey m-section'>
+				<section id='l-delivery' className='t-grey m-section'>
 					<div className='m-twoColumns'>
 						<article>
 							<h2>Где мы готовим?</h2>
@@ -612,7 +652,7 @@ export default function App() {
 							<h2>Частые вопросы</h2>
 							<p>Если вы не нашли ответа на ваш вопрос, наши менеджеры с радостью вам помогут</p>
 							<p>Остались вопросы?</p>
-							<button onClick={openModal}>Расскажите мне все</button>
+							<button onClick={openModal}>Получить консультацию</button>
 						</article>
 						<article>
 							<AccordeonItem name='Где вы это всё готовите?' desc='Все блюда мы готовим на собственных производствах'/>
@@ -789,35 +829,6 @@ export default function App() {
 		const [modalIsOpen, setIsOpen] = useState(false)
 		const [addressChanged, setAddressChanged] = useState(0)
 
-		useEffect(() => {
-			let isMounted = true
-
-			fetch(apiUrl + '/api/v1/get/user', {
-				method: 'get',
-				mode: 'cors',
-				headers: {
-					'authorization': apiKey,
-					'user-hash': sessionStorage.getItem('userHash')
-				}
-			})
-			.then(response => response.json())
-			.then(
-				result => {
-					setIsLoaded(true)
-					setItems(result)
-					console.log(result)
-				},
-				error => {
-					setIsLoaded(true)
-					setError(error)
-				}
-			)
-
-			return () => {
-				isMounted = false
-			}
-		}, [])
-
 		const logout = () => {
 			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
 				method: 'get',
@@ -918,6 +929,35 @@ export default function App() {
 				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
 			})
 		}
+
+		useEffect(() => {
+			let isMounted = true
+
+			fetch(apiUrl + '/api/v1/get/user', {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				}
+			})
+			.then(response => response.json())
+			.then(
+				result => {
+					setIsLoaded(true)
+					setItems(result)
+					console.log(result)
+				},
+				error => {
+					setIsLoaded(true)
+					setError(error)
+				}
+			)
+
+			return () => {
+				isMounted = false
+			}
+		}, [])
 
 		if(!userAuthorized) {
 			return (
@@ -1118,7 +1158,35 @@ export default function App() {
 		return (
 			<main>
 				<section className='m-section'>
-					
+					<h2>Оформление заказа</h2>
+				</section>
+				<section className='t-grey m-section'>
+					<article>
+						<input type='date'/>
+					</article>
+					<article>
+						<select name=''>
+							<option value='' disabled>Выберите адрес:</option>
+							<option value=''>Адрес</option>
+						</select>
+					</article>
+					<article>
+						<select name=''>
+							<option value='' disabled>Выберите время доставки:</option>
+							<option value=''>8:00</option>
+						</select>
+					</article>
+					<article>
+						<p>Способ оплаты:</p>
+						<div className='m-radioInput'>
+							<input type='radio' name='UserForm' value='m' id='male'/>
+							<label htmlFor='male'>Наличными</label>
+						</div>
+						<div className='m-radioInput'>
+							<input type='radio' name='UserForm' value='f' id='female'/>
+							<label htmlFor='female'>Картой курьеру</label>
+						</div>
+					</article>
 				</section>
 			</main>
 		)

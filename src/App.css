@@ -79,7 +79,6 @@ footer span {
 h1 {
 	font-size: 3.3rem;
 	margin-bottom: 4rem;
-	text-transform: uppercase;
 	font-family: var(--extraBold);
 	text-align: center;
 }
@@ -133,6 +132,9 @@ img {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+}
+#l-mobileHeader {
+	display: none;
 }
 #l-menuInnerPanel {
 	font-size: 1.25rem;
@@ -548,6 +550,28 @@ button.m-closeModalButton {
 	padding: 2.5rem;
 	max-width: 50vw;
 }
+.m-modalMenu {
+	position: relative;
+	background: var(--w);
+	padding: 2.5rem;
+	width: 100%;
+	background: var(--lightGrey);
+	display: flex;
+}
+.m-modalMenu article {
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+.m-modalMenu article a {
+	padding: 1rem 0;
+	font-size: 2rem;
+}
+.m-modalMenu article button {
+	margin-top: 3rem;
+	width: 100%;
+}
 .m-slider {
 	align-items: flex-start;
 	justify-content: space-between;
@@ -595,19 +619,42 @@ button.m-closeModalButton {
 .m-catalogButtons button > span:last-child {
 	display: none;
 }
-.m-selectWindow {
-	display: none;
+.m-select {
+	position: relative;
 }
-.m-selectButton {
+.m-select article {
+	position: absolute;
+	bottom: 100%;
+	left: 0;
+	width: 100%;
+	background: var(--w);
+	border: .2rem solid var(--grey);
+	border-radius: 1rem;
+	font-size: 1.5rem;
+	z-index: 997;
+}
+.m-select span {
+	display: block;
+	width: 100%;
+	padding: 2rem 1.5rem;
+	cursor: pointer;
+	border-radius: 1rem;
+	color: var(--darkGrey);
+}
+.m-select span:hover {
+	background: var(--darkGrey);
+	color: var(--dark);
+}
+.m-select button {
 	color: var(--b);
 	border: .2rem solid var(--grey);
-	background: none;
+	background: var(--w);
 	box-shadow: none;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
-.m-selectButton img {
+.m-select button img {
 	transform: rotate(180deg);
 }
 .m-twoColumns {
@@ -730,6 +777,83 @@ button.m-closeModalButton {
 
 /*Media*/
 @media (max-width: 767px) {
+	html {
+		font-size: 3vw;
+	}
+	#l-personalPanel, #l-menuPanel {
+		display: none;
+	}
+	#l-mobileHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 6rem;
+		padding: 0 1.5rem;
+		background: var(--lightGrey);
+		z-index: 998;
+	}
+	#l-mobileHeader article {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	#l-mobileHeader button {
+		background: none;
+		color: var(--b);
+		font-size: 2.5rem;
+		border: none;
+		box-shadow: none;
+		padding: 0;
+	}
+	#l-mobileHeader button:hover {
+		transform: none;
+	}
+	.m-section {
+		padding: 2rem 1.5rem;
+	}
+	#l-banner {
+		padding-right: 1.5rem;
+		background: none;
+		margin-top: 6rem;
+	}
+	#l-banner button {
+		width: 100%;
+	}
+	h1 {
+		font-size: 2rem;
+		margin-bottom: 2rem;
+	}
+	.m-section h2 {
+		font-size: 1.9rem;
+	}
+	#l-catalogTotal {
+		flex-direction: column-reverse;
+	}
+	#l-catalogPurchase {
+		padding-left: 0;
+	}
+	#l-catalogDuration {
+		padding-right: 0;
+	}
+	#l-catalogPrice {
+		border: none;
+		padding: 1.5rem 0;
+	}
+	#l-catalog h3 {
+		font-size: 1.4rem;
+		margin-bottom: 1rem;
+	}
+	#l-catalogPrice p {
+		font-size: 3rem;
+	}
+	.swiper-slide:last-child {
+		margin-right: 0;
+	}
 	.t-staticSlider {
 		display: none;
 	}
@@ -741,5 +865,91 @@ button.m-closeModalButton {
 	}
 	.m-catalogButtons button > span:last-child {
 		display: inline;
+	}
+	.m-twoColumns {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.m-twoColumns article {
+		flex: auto;
+	}
+	.m-twoColumns article:last-child {
+		margin-top: 2rem;
+	}
+	.m-twoColumns button {
+		width: 100%;
+	}
+	.m-twoColumns p {
+		font-size: 1rem;
+		padding-right: 0;
+	}
+	#l-subscribe {
+		flex-direction: column;
+	}
+	#l-subscribe article:first-child {
+		width: 20rem;
+		margin-right: 0;
+		margin-bottom: 1rem;
+		text-align: center;
+	}
+	#l-about h3 {
+		font-family: var(--bold);
+	}
+	footer {
+		padding: 2rem 1.5rem;
+	}
+	footer > div {
+		flex: 0 0 50%;
+	}
+	#l-footerSocialLinks {
+		justify-content: flex-end;
+	}
+	#l-footerSocialLinks a {
+		margin-left: 1.5rem;
+	}
+	#l-menuInnerPanel {
+		padding: 2rem 1.5rem;
+	}
+	#l-menuInnerPanel a:first-child {
+		flex: 0 0 45%;
+	}
+	#l-authForm {
+		width: auto;
+	}
+	#l-profileLinks {
+		width: auto;
+		margin-bottom: 1.5rem;
+	}
+	#l-personal {
+		width: auto;
+		padding: 2rem 1.5rem;
+		margin: 0 -1.5rem -2rem;
+	}
+	#l-personalInfo article {
+		flex: 0 0 100%;
+	}
+	#l-personalInfo article:nth-child(odd) {
+		margin-left: 0;
+	}
+	#l-personalInfo article:nth-child(even) {
+		margin-right: 0;
+	}
+	#l-personalAddresses article p {
+		margin-bottom: 1rem;
+	}
+	#l-personalOrders article div {
+		flex: 50%;
+	}
+	.m-modal {
+		max-width: none;
+	}
+	#l-modalAddressForm article {
+		flex: 0 0 100%;
+	}
+	#l-modalAddressForm article:nth-child(odd) {
+		margin-right: 0;
+	}
+	#l-modalAddressForm article:nth-child(even) {
+		margin-left: 0;
 	}
 }
