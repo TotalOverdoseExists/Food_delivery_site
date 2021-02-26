@@ -1160,34 +1160,43 @@ export default function App() {
 				<section className='m-section'>
 					<h2>Оформление заказа</h2>
 				</section>
-				<section className='t-grey m-section'>
-					<article>
-						<input type='date'/>
-					</article>
-					<article>
-						<select name=''>
-							<option value='' disabled>Выберите адрес:</option>
-							<option value=''>Адрес</option>
-						</select>
-					</article>
-					<article>
-						<select name=''>
-							<option value='' disabled>Выберите время доставки:</option>
-							<option value=''>8:00</option>
-						</select>
-					</article>
-					<article>
-						<p>Способ оплаты:</p>
-						<div className='m-radioInput'>
-							<input type='radio' name='UserForm' value='m' id='male'/>
-							<label htmlFor='male'>Наличными</label>
+				<form>
+					<section className='t-grey m-section'>
+						<div id='l-basket'>
+							<article>
+								<input type='date'/>
+							</article>
+							<article>
+								<select name=''>
+									<option value=''>Выберите адрес:</option>
+									<option value=''>Адрес</option>
+								</select>
+								<button className='m-linkButton'>Добавить новый адрес</button>
+							</article>
+							<article>
+								<select name=''>
+									<option value=''>Выберите время доставки:</option>
+									<option value=''>8:00</option>
+								</select>
+							</article>
+							<article>
+								<p>Способ оплаты:</p>
+								<div className='m-radioInput'>
+									<input type='radio' name='UserForm' value='m' id='male'/>
+									<label htmlFor='male'>Наличными</label>
+								</div>
+								<div className='m-radioInput'>
+									<input type='radio' name='UserForm' value='f' id='female'/>
+									<label htmlFor='female'>Картой курьеру</label>
+								</div>
+							</article>
 						</div>
-						<div className='m-radioInput'>
-							<input type='radio' name='UserForm' value='f' id='female'/>
-							<label htmlFor='female'>Картой курьеру</label>
-						</div>
-					</article>
-				</section>
+					</section>
+					<section className='m-section'>
+						<h2>Итого: </h2>
+						<button type='submit'>Оформить заказ</button>
+					</section>
+				</form>
 			</main>
 		)
 	}

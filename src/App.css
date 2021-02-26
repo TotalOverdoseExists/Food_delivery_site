@@ -82,7 +82,7 @@ h1 {
 	font-family: var(--extraBold);
 	text-align: center;
 }
-input:not([type='radio']), input:not([type='checkbox']) {
+input:not([type='radio']), input:not([type='checkbox']), select {
 	width: 100%;
 	padding: 1rem 1.5rem;
 	font-family: var(--bold);
@@ -471,6 +471,36 @@ img {
 #l-about p {
 	color: var(--darkGrey);
 	margin-bottom: 1.5rem;
+}
+#l-basket {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+#l-basket article {
+	flex: calc(50% - 1rem) 1;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+#l-basket article:nth-child(odd) {
+	margin-right: 1rem;
+}
+#l-basket article:nth-child(even) {
+	margin-left: 1rem;
+}
+#l-basket article p {
+	color: var(--darkGrey);
+	flex: 100%;
+}
+#l-basket input[type="radio"] ~ label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	width: 50%;
 }
 
 /*Module*/
@@ -950,6 +980,15 @@ button.m-closeModalButton {
 		margin-right: 0;
 	}
 	#l-modalAddressForm article:nth-child(even) {
+		margin-left: 0;
+	}
+	#l-basket article {
+		flex: 100%;
+	}
+	#l-basket article:nth-child(odd) {
+		margin-right: 0;
+	}
+	#l-basket article:nth-child(even) {
 		margin-left: 0;
 	}
 }
