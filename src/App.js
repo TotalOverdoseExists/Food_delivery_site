@@ -339,7 +339,7 @@ export default function App() {
 		}
 
 		const toggleSelect = () => {
-			if(selectOpen == 's-closed') {
+			if(selectOpen === 's-closed') {
 				setSelectOpen('s-opened')
 			}
 			else {
@@ -369,6 +369,24 @@ export default function App() {
 				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
 			})
 		}
+		
+/*		fetch(apiUrl + '/api/v1/get/catalog?type&size&week', {
+			method: 'get',
+			mode: 'cors',
+			headers: {
+				'authorization': apiKey
+			}
+		})
+		.then(response => {
+			response.json().then(json => {
+				if(json.success) {
+					console.log(json)
+				}
+			})
+		})
+		.catch(error => {
+			alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+		})*/
 
 		return (
 			<div id='l-catalog'>
@@ -376,9 +394,7 @@ export default function App() {
 					<h3>Выберите размер рациона:</h3>
 					<div className='m-catalogButtons'>
 						<button className='active'>XS</button>
-						<button>S</button>
 						<button>M</button>
-						<button>L</button>
 						<button>XL</button>
 					</div>
 				</div>
@@ -439,13 +455,16 @@ export default function App() {
 						<Modal isOpen={quickOpen} onRequestClose={closeQuick} overlayClassName='m-modalOverlay' className='m-modal'>
 							<button className='m-linkButton m-closeModalButton' onClick={closeQuick}>&#10006;</button>
 							<h2>Мгновенный заказ</h2>
-							<form id='l-modalCallback'>
+							<form id='l-modalCallback' onSubmit={quick}>
+								<input type='hidden' name='OrdersForm[size]' value=''/>
+								<input type='hidden' name='OrdersForm[summ]' value=''/>
+								<input type='hidden' name='OrdersForm[day]' value=''/>
 								<article>
-									<input type='text' name='RequestForm[name]' placeholder='Имя'/>
+									<input type='text' name='OrdersForm[name]' placeholder='Имя'/>
 								</article>
 								<article>
 									<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
-										{(inputProps) => <input type='tel' name='RequestForm[phone]'/>}
+										{(inputProps) => <input type='tel' name='OrdersForm[phone]'/>}
 									</InputMask>
 								</article>
 								<article>
@@ -480,7 +499,27 @@ export default function App() {
 	}
 	
 	function Mainpage() {
+		const [info, setInfo] = useState(null)
 		const [modalIsOpen, setIsOpen] = useState(false)
+
+		useEffect(() => {
+			fetch(apiUrl + '/api/v1/get/settings', {
+				method: 'get',
+				cors: 'cors',
+				headers: {
+					'authorization': apiKey
+				}
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						setInfo(json)
+					}
+				})
+			})
+		}, [])
+
+		console.log(info)
 
 		const openModal = () => {
 			setIsOpen(true)
@@ -823,11 +862,30 @@ export default function App() {
 	}
 
 	function Profile() {
-		const [error, setError] = useState(null)
-		const [isLoaded, setIsLoaded] = useState(false)
-		const [items, setItems] = useState([])
+		const [items, setItems] = useState(null)
 		const [modalIsOpen, setIsOpen] = useState(false)
 		const [addressChanged, setAddressChanged] = useState(0)
+
+		useEffect(() => {
+			fetch(apiUrl + '/api/v1/get/user', {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				}
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						setItems(json)
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+		}, [])
 
 		const logout = () => {
 			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
@@ -899,6 +957,7 @@ export default function App() {
 				response.json().then(json => {
 					if(json.success) {
 						alert('Данные успешно обновлены!')
+						setAddressChanged(count => count + 1)
 					}
 				})
 			})
@@ -919,9 +978,7 @@ export default function App() {
 			.then(response => {
 				response.json().then(json => {
 					if(json.success) {
-						console.log('Jeje!')
 						setAddressChanged(count => count + 1)
-						console.log(addressChanged)
 					}
 				})
 			})
@@ -930,10 +987,116 @@ export default function App() {
 			})
 		}
 
-		useEffect(() => {
-			let isMounted = true
+		function GenderInputs(props) {
+			let male = false
+			let female = false
 
-			fetch(apiUrl + '/api/v1/get/user', {
+			if(props.gender === 'm') {
+				male = true
+			}
+			else if(props.gender === 'f') {
+				female = true
+			}
+
+			return (
+				<article>
+					<p>Пол</p>
+					<div className='m-radioInput'>
+						<input type='radio' name='UserForm[gender]' value='m' id='male' defaultChecked={male}/>
+						<label htmlFor='male'>Мужской</label>
+					</div>
+					<div className='m-radioInput'>
+						<input type='radio' name='UserForm[gender]' value='f' id='female' defaultChecked={female}/>
+						<label htmlFor='female'>Женский</label>
+					</div>
+				</article>
+			)
+		}
+
+		if(!userAuthorized) {
+			return (
+				<Redirect to='/auth/'/>
+			)
+		}
+		else if(items === null) {
+			return (
+				<main>
+					<section className='m-section'>
+						<h2>Загрузка...</h2>
+					</section>
+				</main>
+			)
+		}
+		else {
+			return (
+				<main>
+					<section className='m-section'>
+						<ProfileLinks/>
+						<div id='l-personal'>
+							<form id='l-personalInfo' onSubmit={editInfo}>
+								<h2>+{items.data.user.user_phone}</h2>
+								<article>
+									<input type='text' name='UserForm[name]' placeholder='Имя' defaultValue={items.data.user.user_name}/>
+								</article>
+								<article>
+									<input type='email' name='UserForm[email]' placeholder='E-mail' defaultValue={items.data.user.user_email}/>
+								</article>
+								<article>
+									<InputMask mask='99.99.9999' maskChar='_' alwaysShowMask='false' value={items.data.user.user_birthday}>
+										{(inputProps) => <input type='text' name='UserForm[birthday]' placeholder='День рождения'/>}
+									</InputMask>
+								</article>
+								<GenderInputs gender={items.data.user.user_gender}/>
+								<button type='submit'>Сохранить</button>
+								<button type='button' onClick={logout}>Выйти</button>
+							</form>
+							<div id='l-personalAddresses'>
+								<h3>Мои адреса</h3>
+								<button className='m-linkButton' onClick={openModal}>Добавить адрес</button>
+								<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
+									<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
+									<h2>Добавить новый адрес</h2>
+									<form id='l-modalAddressForm' onSubmit={addAddress}>
+										<article>
+											<input type='text' name='AddressForm[name]' placeholder='Название'/>
+										</article>
+										<article>
+											<input type='text' name='AddressForm[address]' placeholder='Адрес'/>
+										</article>
+										<article>
+											<input type='text' name='AddressForm[driveway]' placeholder='Подъезд'/>
+										</article>
+										<article>
+											<input type='text' name='AddressForm[apartment]' placeholder='Квартира'/>
+										</article>
+										<article>
+											<input type='text' name='AddressForm[intercom]' placeholder='Домофон'/>
+										</article>
+										<article>
+											<input type='text' name='AddressForm[story]' placeholder='Этаж'/>
+										</article>
+										<button type='submit'>Сохранить</button>
+									</form>
+								</Modal>
+								{items.data.address.map(address => (
+									<article key={address.id}>
+										<p><span>{address.name}: </span>{address.address}</p>
+										<button className='m-linkButton' data-id={address.id} onClick={deleteAddress}>Удалить</button>
+									</article>
+								))}
+							</div>
+						</div>
+					</section>
+				</main>
+			)
+		}
+	}
+	
+	function Orders() {
+		const [items, setItems] = useState(null)
+
+		useEffect(() => {
+			fetch(apiUrl + '/api/v1/get/orders?type=list', {
 				method: 'get',
 				mode: 'cors',
 				headers: {
@@ -941,149 +1104,32 @@ export default function App() {
 					'user-hash': sessionStorage.getItem('userHash')
 				}
 			})
-			.then(response => response.json())
-			.then(
-				result => {
-					setIsLoaded(true)
-					setItems(result)
-					console.log(result)
-				},
-				error => {
-					setIsLoaded(true)
-					setError(error)
-				}
-			)
-
-			return () => {
-				isMounted = false
-			}
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						setItems(json)
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
 		}, [])
 
+		console.log(items)
+
 		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
 			)
 		}
-		else {
-			if(error) {
-				return (
-					<main>
-						<section className='m-section'>
-							<h2>Error: {error.message}</h2>
-						</section>
-					</main>
-				)
-			}
-			else if(!isLoaded) {
-				return (
-					<main>
-						<section className='m-section'>
-							<h2>Loading...</h2>
-						</section>
-					</main>
-				)
-			}
-			else {
-				return (
-					<main>
-						<section className='m-section'>
-							<ProfileLinks/>
-							<div id='l-personal'>
-								<form id='l-personalInfo' onSubmit={editInfo}>
-									<h2>+79224188882</h2>
-									<article>
-										<input type='text' name='UserForm[name]' placeholder='Имя' defaultValue='Сергей'/>
-									</article>
-									<article>
-										<input type='email' name='UserForm[email]' placeholder='E-mail'/>
-									</article>
-									<article>
-										<InputMask mask='99.99.9999' maskChar='_' alwaysShowMask='false'>
-											{(inputProps) => <input type='text' name='UserForm[birthday]' placeholder='День рождения'/>}
-										</InputMask>
-									</article>
-									<article>
-										<p>Пол</p>
-										<div className='m-radioInput'>
-											<input type='radio' name='UserForm[gender]' value='m' id='male'/>
-											<label htmlFor='male'>Мужской</label>
-										</div>
-										<div className='m-radioInput'>
-											<input type='radio' name='UserForm[gender]' value='f' id='female'/>
-											<label htmlFor='female'>Женский</label>
-										</div>
-									</article>
-									<button type='submit'>Сохранить</button>
-									<button type='button' onClick={logout}>Выйти</button>
-								</form>
-								<div id='l-personalAddresses'>
-									<h3>Мои адреса</h3>
-									<button className='m-linkButton' onClick={openModal}>Добавить адрес</button>
-									<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
-										<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
-										<h2>Добавить новый адрес</h2>
-										<form id='l-modalAddressForm' onSubmit={addAddress}>
-											<article>
-												<input type='text' name='AddressForm[name]' placeholder='Название'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[address]' placeholder='Адрес'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[driveway]' placeholder='Подъезд'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[apartment]' placeholder='Квартира'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[intercom]' placeholder='Домофон'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[story]' placeholder='Этаж'/>
-											</article>
-											<button type='submit'>Сохранить</button>
-										</form>
-									</Modal>
-									<article>
-										<p><span>Дом: </span>Москва, 12-я Парковая улица, 6 12</p>
-										<button className='m-linkButton' data-id='1' onClick={deleteAddress}>Удалить</button>
-									</article>
-									<article>
-										<p><span>Работа: </span>Москва, 12-я Парковая улица, 6 12</p>
-										<button className='m-linkButton' data-id='2' onClick={deleteAddress}>Удалить</button>
-									</article>
-								</div>
-							</div>
-						</section>
-					</main>
-				)
-			}
-		}
-	}
-	
-	function Orders() {
-		fetch(apiUrl + '/api/v1/get/orders?type=list', {
-			method: 'get',
-			mode: 'cors',
-			headers: {
-				'authorization': apiKey,
-				'user-hash': sessionStorage.getItem('userHash')
-			}
-		})
-		.then(response => {
-			response.json().then(json => {
-				if(json.success) {
-					console.log(json)
-				}
-			})
-		})
-		.catch(error => {
-			alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
-		})
-
-		if(!userAuthorized) {
+		else if(items === null) {
 			return (
-				<Redirect to='/auth/'/>
+				<main>
+					<section className='m-section'>
+						<h2>Загрузка...</h2>
+					</section>
+				</main>
 			)
 		}
 		else {
