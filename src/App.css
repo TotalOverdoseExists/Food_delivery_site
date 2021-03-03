@@ -468,9 +468,12 @@ img {
 	font-size: 2rem;
 	margin-bottom: 2rem;
 }
-#l-about p {
+#l-about p, #l-about ul {
 	color: var(--darkGrey);
 	margin-bottom: 1.5rem;
+}
+#l-about .m-linkButton {
+	margin-top: 1rem;
 }
 #l-basket {
 	display: flex;
@@ -803,6 +806,9 @@ button.m-closeModalButton {
 }
 .s-opened {
 	display: block;
+}
+.s-center {
+	text-align: center;
 }
 
 /*Media*/
