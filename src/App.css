@@ -561,6 +561,24 @@ button.m-linkButton {
 button.m-linkButton:hover {
 	transform: none;
 }
+a.m-buttonLink {
+	font-family: var(--semibold);
+	font-size: 1.5rem;
+	color: var(--w);
+	background: var(--mainColor);
+	border-radius: 1rem;
+	padding: 1.5rem 2rem;
+	border: none;
+	outline: none;
+	box-shadow: .2rem .2rem 1rem -.4rem var(--b);
+	transition: all .2s;
+	cursor: pointer;
+	text-decoration: none;
+	display: inline-block;
+}
+a.m-buttonLink:hover {
+	transform: translateY(.3rem);
+}
 button.m-closeModalButton {
 	position: absolute;
 	right: 1.5rem;

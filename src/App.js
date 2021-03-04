@@ -44,33 +44,31 @@ const catalogBreakpoints = {
 export default function App() {
 	const [userAuthorized, setUserAuthorized] = useState(false)
 	const [info, setInfo] = useState(null)
-	const [basketSize, setBasketSize] = useState('XS')
-	const [basketSumm, setBasketSumm] = useState(0)
-
-	if(sessionStorage.getItem('userHash')) {
-		fetch(apiUrl + '/api/v1/get/auth', {
-			method: 'get',
-			mode: 'cors',
-			headers: {
-				'authorization': apiKey,
-				'user-hash': sessionStorage.getItem('userHash')
-			}
-		})
-		.then(response => {
-			response.json().then(json => {
-				if(json.success) {
-					if(json.data) {
-						setUserAuthorized(true)
-					}
-				}
-			})
-		})
-		.catch(error => {
-			console.log(error)
-		})
-	}
 
 	useEffect(() => {
+		if(sessionStorage.getItem('userHash')) {
+			fetch(apiUrl + '/api/v1/get/auth', {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				}
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						if(json.data) {
+							setUserAuthorized(true)
+						}
+					}
+				})
+			})
+			.catch(error => {
+				console.log(error)
+			})
+		}
+
 		let isInfo = true
 
 		fetch(apiUrl + '/api/v1/get/settings', {
@@ -91,8 +89,6 @@ export default function App() {
 		return () => (isInfo = false)
 	}, [])
 
-	console.log(info)
-	
 	const callMe = e => {
 		e.preventDefault()
 
@@ -150,7 +146,7 @@ export default function App() {
 				)
 			}
 		}
-	
+		
 		if(currentLocation.pathname === '/') {
 			if(info === null) {
 				return (
@@ -163,7 +159,7 @@ export default function App() {
 				return (
 					<header>
 						<div id='l-personalPanel'>
-							<span>Клиентский сервис: <a href='mailto:claim@m-food.ru'>claim@m-food.ru</a></span>
+							<span>Клиентский сервис: <a href={('mailto:' + info.data.contacts.email)}>{info.data.contacts.email}</a></span>
 							<ProfileLink/>
 						</div>
 						<div id='l-menuPanel'>
@@ -282,25 +278,20 @@ export default function App() {
 							<span className='t-dark'>
 								{info.data.contacts.copy}
 							</span>
-							<span className='t-light'>
-								<a href='/docs/doc.pdf' target='_blank'>Оферта</a>
-							</span>
-							<span className='t-light'>
-								<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
-							</span>
+							{info.data.contacts.docs.map((value, key) => (
+								<span className='t-light' key={key}>
+									<a href={value.value} target='_blank'>{value.name}</a>
+								</span>
+							))}
 						</div>
 					</div>
 					<div>
 						<div id='l-footerSocialLinks'>
-							<a href='https://www.instagram.com/' target='_blank' rel='noreferrer'>
-								<img src='/img/instagram.png' alt='instagram'/>
-							</a>
-							<a href='https://vk.com/' target='_blank' rel='noreferrer'>
-								<img src='/img/vk.png' alt='vkontakte'/>
-							</a>
-							<a href='https://www.facebook.com/' target='_blank' rel='noreferrer'>
-								<img src='/img/fb.png' alt='facebook'/>
-							</a>
+							{info.data.contacts.socialnyeSeti.map((value, key) => (
+								<a key={key} href={value.prompt} target='_blank' rel='noreferrer'>
+									<img src={value.value} alt={value.name}/>
+								</a>
+							))}
 						</div>
 						<div id='l-footerInfo'>
 							<span className='t-dark t-uppercase' dangerouslySetInnerHTML={card}></span>
@@ -368,6 +359,38 @@ export default function App() {
 		const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
 		const [quickOpen, setQuickOpen] = useState(false)
 		const [selectOpen, setSelectOpen] = useState('s-closed')
+		const [basketWeek, setBasketWeek] = useState('week1')
+		const [basketSize, setBasketSize] = useState('xs')
+		const [basketDays, setBasketDays] = useState('3 дня')
+		const [basketSumm, setBasketSumm] = useState('0')
+		const [catalog, setCatalog] = useState(null)
+
+		useEffect(() => {
+			let isCatalog = true
+
+			fetch(apiUrl + '/api/v1/get/catalog?size=' + basketSize + '&week=' + basketWeek, {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey
+				}
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						isCatalog ? setCatalog(json) : setCatalog(null)
+						isCatalog ? setBasketSumm(3 * Number(json.data.price).toString(10)) : setBasketSumm('0')
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+
+			return () => (isCatalog = false)
+		}, [basketSize, basketWeek])
+
+		console.log(catalog)
 
 		const openPurchaseModal = () => {
 			setPurchaseModalOpen(true)
@@ -395,6 +418,23 @@ export default function App() {
 			}
 		}
 
+		const changeSelect = e => {
+			setBasketDays(e.target.dataset.id)
+			sessionStorage.setItem('days', e.target.dataset.id)
+			setBasketSumm((Number(e.target.dataset.multiplier) * Number(catalog.data.price)).toString(10))
+			sessionStorage.setItem('summ', (Number(e.target.dataset.multiplier) * Number(catalog.data.price)).toString(10))
+			toggleSelect()
+		}
+
+		const changeSize = e => {
+			setBasketSize(e.target.dataset.size)
+			sessionStorage.setItem('size', e.target.dataset.size)
+		}
+
+		const changeWeek = e => {
+			setBasketWeek(e.target.dataset.week)
+		}
+
 		const quick = e => {
 			e.preventDefault()
 	
@@ -417,139 +457,113 @@ export default function App() {
 				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
 			})
 		}
-		
-		const goToBasket = e => {
-			e.preventDefault()
 
-			
+		if(catalog === null) {
+			return (
+				<h2 className='s-center'>Загрузка...</h2>
+			)
 		}
-		
-/*		fetch(apiUrl + '/api/v1/get/catalog?type&size&week', {
-			method: 'get',
-			mode: 'cors',
-			headers: {
-				'authorization': apiKey
-			}
-		})
-		.then(response => {
-			response.json().then(json => {
-				if(json.success) {
-					console.log(json)
-				}
-			})
-		})
-		.catch(error => {
-			alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
-		})*/
-
-		return (
-			<div id='l-catalog'>
-				<div className='m-catalogBlock'>
-					<h3>Выберите размер рациона:</h3>
-					<div className='m-catalogButtons'>
-						<button className='active'>XS</button>
-						<button>M</button>
-						<button>XL</button>
+		else {
+			return (
+				<div id='l-catalog'>
+					<div className='m-catalogBlock'>
+						<h3>Выберите размер рациона:</h3>
+						<div className='m-catalogButtons'>
+							<button data-size='xs' onClick={changeSize}>XS</button>
+							<button data-size='m' onClick={changeSize}>M</button>
+							<button data-size='xl' onClick={changeSize}>XL</button>
+						</div>
 					</div>
-				</div>
-				<div className='m-catalogBlock'>
-					<h3>Примерное меню на неделю:</h3>
-					<div className='m-catalogButtons'>
-						<button className='active'><span>Понедельник</span><span>Пн</span></button>
-						<button><span>Вторник</span><span>Вт</span></button>
-						<button><span>Среда</span><span>Ср</span></button>
-						<button><span>Четверг</span><span>Чт</span></button>
-						<button><span>Пятница</span><span>Пт</span></button>
-						<button><span>Суббота</span><span>Сб</span></button>
-						<button><span>Воскресенье</span><span>Вс</span></button>
+					<div className='m-catalogBlock'>
+						<h3>Примерное меню на неделю:</h3>
+						<div className='m-catalogButtons'>
+							<button data-week='week1' onClick={changeWeek}><span>Понедельник</span><span>Пн</span></button>
+							<button data-week='week2' onClick={changeWeek}><span>Вторник</span><span>Вт</span></button>
+							<button data-week='week3' onClick={changeWeek}><span>Среда</span><span>Ср</span></button>
+							<button data-week='week4' onClick={changeWeek}><span>Четверг</span><span>Чт</span></button>
+							<button data-week='week5' onClick={changeWeek}><span>Пятница</span><span>Пт</span></button>
+							<button data-week='week6' onClick={changeWeek}><span>Суббота</span><span>Сб</span></button>
+							<button data-week='week0' onClick={changeWeek}><span>Воскресенье</span><span>Вс</span></button>
+						</div>
+						<div id='l-catalogSlider'>
+							<Swiper breakpoints={catalogBreakpoints}>
+								{catalog.data.list.map((value, key) => (
+									<SwiperSlide key={key}>
+										<img src={value.img} alt={value.name}/>
+										<span>{value.name}</span>
+									</SwiperSlide>
+								))}
+							</Swiper>
+						</div>
 					</div>
-					<div id='l-catalogSlider'>
-						<Swiper breakpoints={catalogBreakpoints}>
-							<SwiperSlide>
-								<img src='/img/catalog.png' alt=''/>
-								<span>Каша</span>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/catalog.png' alt=''/>
-								<span>Каша</span>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/catalog.png' alt=''/>
-								<span>Каша</span>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/catalog.png' alt=''/>
-								<span>Каша</span>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/catalog.png' alt=''/>
-								<span>Каша</span>
-							</SwiperSlide>
-						</Swiper>
-					</div>
-				</div>
-				<div id='l-catalogTotal' className='m-catalogBlock'>
-					<div id='l-catalogPurchase'>
-						<button onClick={openPurchaseModal}>Заказать</button>
-						<Modal isOpen={purchaseModalOpen} onRequestClose={closePurchaseModal} overlayClassName='m-modalOverlay' className='m-modal'>
-							<button className='m-linkButton m-closeModalButton' onClick={closePurchaseModal}>&#10006;</button>
-							<h2>Оформление заказа</h2>
-							<form id='l-modalCallback'>
-								<article>
-									<span>Выберите удобный для Вас способ:</span>
+					<div id='l-catalogTotal' className='m-catalogBlock'>
+						<div id='l-catalogPurchase'>
+							<button onClick={openPurchaseModal}>Заказать</button>
+							<Modal isOpen={purchaseModalOpen} onRequestClose={closePurchaseModal} overlayClassName='m-modalOverlay' className='m-modal'>
+								<button className='m-linkButton m-closeModalButton' onClick={closePurchaseModal}>&#10006;</button>
+								<h2>Оформление заказа</h2>
+								<form id='l-modalCallback'>
+									<article>
+										<span>Выберите удобный для Вас способ:</span>
+									</article>
+									<article>
+										<button onClick={openQuick}>Мгновенный заказ</button>
+									</article>
+									<article>
+										<Link to='/basket/' className='m-buttonLink'>Оформить на сайте</Link>
+									</article>
+								</form>
+							</Modal>
+							<Modal isOpen={quickOpen} onRequestClose={closeQuick} overlayClassName='m-modalOverlay' className='m-modal'>
+								<button className='m-linkButton m-closeModalButton' onClick={closeQuick}>&#10006;</button>
+								<h2>Мгновенный заказ</h2>
+								<form id='l-modalCallback' onSubmit={quick}>
+									<input type='hidden' name='QuicklyForm[size]' value={basketSize}/>
+									<input type='hidden' name='QuicklyForm[summ]' value={basketSumm}/>
+									<input type='hidden' name='QuicklyForm[day]' value={basketDays}/>
+									<article>
+										<input type='text' name='QuicklyForm[name]' placeholder='Имя'/>
+									</article>
+									<article>
+										<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
+											{(inputProps) => <input type='tel' name='QuicklyForm[phone]'/>}
+										</InputMask>
+									</article>
+									<article>
+										<div className='m-checkboxInput'>
+											<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
+											<label htmlFor='agreement'>
+												<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+											</label>
+										</div>
+									</article>
+									<button type='submit'>Отправить</button>
+								</form>
+							</Modal>
+						</div>
+						<div id='l-catalogPrice'>
+							<h3>Итого:</h3>
+							<p>{basketSumm}р</p>
+						</div>
+						<div id='l-catalogDuration'>
+							<h3>Выберите продолжительность:</h3>
+							<div className='m-select'>
+								<article className={selectOpen}>
+									<span data-id='3 дня' data-multiplier='3' onClick={changeSelect}>3 дня: {catalog.data.price}р в день</span>
+									<span data-id='5 дней' data-multiplier='5' onClick={changeSelect}>5 дней: {catalog.data.price}р в день</span>
+									<span data-id='6 дней' data-multiplier='6' onClick={changeSelect}>6 дней: {catalog.data.price}р в день</span>
+									<span data-id='12 дней' data-multiplier='12' onClick={changeSelect}>12 дней: {catalog.data.price}р в день</span>
+									<span data-id='20 дней' data-multiplier='20' onClick={changeSelect}>20 дней: {catalog.data.price}р в день</span>
+									<span data-id='24 дня' data-multiplier='24' onClick={changeSelect}>24 дня: {catalog.data.price}р в день</span>
+									<span data-id='30 дней' data-multiplier='30' onClick={changeSelect}>30 дней: {catalog.data.price}р в день</span>
 								</article>
-								<article>
-									<button onClick={openQuick}>Мгновенный заказ</button>
-								</article>
-								<article>
-									<button>Оформить на сайте</button>
-								</article>
-							</form>
-						</Modal>
-						<Modal isOpen={quickOpen} onRequestClose={closeQuick} overlayClassName='m-modalOverlay' className='m-modal'>
-							<button className='m-linkButton m-closeModalButton' onClick={closeQuick}>&#10006;</button>
-							<h2>Мгновенный заказ</h2>
-							<form id='l-modalCallback' onSubmit={quick}>
-								<input type='hidden' name='OrdersForm[size]' value=''/>
-								<input type='hidden' name='OrdersForm[summ]' value=''/>
-								<input type='hidden' name='OrdersForm[day]' value=''/>
-								<article>
-									<input type='text' name='OrdersForm[name]' placeholder='Имя'/>
-								</article>
-								<article>
-									<InputMask mask='+7 (999) 999-9999' maskChar='_' alwaysShowMask='true'>
-										{(inputProps) => <input type='tel' name='OrdersForm[phone]'/>}
-									</InputMask>
-								</article>
-								<article>
-									<div className='m-checkboxInput'>
-										<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
-										<label htmlFor='agreement'>
-											<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
-										</label>
-									</div>
-								</article>
-								<button type='submit'>Отправить</button>
-							</form>
-						</Modal>
-					</div>
-					<div id='l-catalogPrice'>
-						<h3>Итого:</h3>
-						<p>16 500р</p>
-					</div>
-					<div id='l-catalogDuration'>
-						<h3>Выберите продолжительность:</h3>
-						<div className='m-select'>
-							<article className={selectOpen}>
-								<span>3 дня: 700р в день</span>
-								<span>5 дней: 700р в день</span>
-							</article>
-							<button onClick={toggleSelect}>3 дня: 700р в день <img src='/img/arrow.svg' alt=''/></button>
+								<button onClick={toggleSelect}>{basketDays}: {catalog.data.price}р в день <img src='/img/arrow.svg' alt=''/></button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		)
+			)
+		}
 	}
 	
 	function Mainpage() {
@@ -578,15 +592,11 @@ export default function App() {
 					<section id='l-banner' className='m-section'>
 						<h1>{info.data.hero.title}</h1>
 						<ul>
-							<li>
-								<span>Разнообразнее, чем готовить самому<span>Меню не повторяется месяц</span></span>
-							</li>
-							<li>
-								<span>Дешевле, чем питаться в кафе<span>6 блюд за 550р в день</span></span>
-							</li>
-							<li>
-								<span>Полезнее, чем заказать пиццу<span>Полноценное питание</span></span>
-							</li>
+							{info.data.hero.preimushchestva.map((value, key) => (
+								<li key={key}>
+									<span>{value.value}<span>{value.prompt}</span></span>
+								</li>
+							))}
 						</ul>
 						<button onClick={openModal}>Расскажите мне все</button>
 						<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
@@ -616,51 +626,27 @@ export default function App() {
 					</section>
 					<section className='m-section t-darkBackground'>
 						<div className='m-slider t-staticSlider'>
-							<article>
-								<img src='/img/time-passing.svg' alt=''/>
-								<h3>Получите 25-ый час</h3>
-								<hr/>
-								<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
-							</article>
-							<article>
-								<img src='/img/container.svg' alt=''/>
-								<h3>Питайтесь, где удобно</h3>
-								<hr/>
-								<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
-							</article>
-							<article>
-								<img src='/img/cook-book.svg' alt=''/>
-								<h3>Наслаждайтесь едой</h3>
-								<hr/>
-								<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
-							</article>
+							{info.data.advantages.advantages.map((value, key) => (
+								<article key={key}>
+									<img src={value.value} alt={value.name}/>
+									<h3>{value.name}</h3>
+									<hr/>
+									<p>{value.prompt}</p>
+								</article>
+							))}
 						</div>
 						<div className='m-slider t-dynamicSlider'>
 							<Swiper spaceBetween={50} slidesPerView={1.5}>
-								<SwiperSlide>
-									<article>
-										<img src='/img/time-passing.svg' alt=''/>
-										<h3>Получите 25-ый час</h3>
-										<hr/>
-										<p>Экономьте время на готовке еды, мытье посуды и походах в магазин, и занимайтесь полезными или любимыми делами.</p>
-									</article>
-								</SwiperSlide>
-								<SwiperSlide>
-									<article>
-										<img src='/img/container.svg' alt=''/>
-										<h3>Питайтесь, где удобно</h3>
-										<hr/>
-										<p>Блюда герметично упакованы в контейнеры, которые можно брать с собой на работу или учебу.</p>
-									</article>
-								</SwiperSlide>
-								<SwiperSlide>
-									<article>
-										<img src='/img/cook-book.svg' alt=''/>
-										<h3>Наслаждайтесь едой</h3>
-										<hr/>
-										<p>Шеф-повар тщательно следит за тем, чтобы блюда вам нравились. Мы убираем из рационов блюда, если они получают от вас низкие оценки.</p>
-									</article>
-								</SwiperSlide>
+								{info.data.advantages.advantages.map((value, key) => (
+									<SwiperSlide key={key}>
+										<article>
+											<img src={value.value} alt={value.name}/>
+											<h3>{value.name}</h3>
+											<hr/>
+											<p>{value.prompt}</p>
+										</article>
+									</SwiperSlide>
+								))}
 							</Swiper>
 						</div>
 					</section>
@@ -670,115 +656,78 @@ export default function App() {
 					<section id='l-delivery' className='t-grey m-section'>
 						<div className='m-twoColumns'>
 							<article>
-								<h2>Где мы готовим?</h2>
-								<p>Все блюда мы готовим на собственном производстве с использованием новейшего и современного оборудования.</p>
+								<h2>{info.data.cook.title}</h2>
+								<p>{info.data.cook.descr}</p>
 							</article>
 							<article>
-								<img src='/img/cook.jpg' alt=''/>
+								<img src={info.data.cook.img} alt=''/>
 							</article>
 						</div>
 					</section>
 					<section className='m-section t-darkBackground'>
 						<h2>Оплата и доставка</h2>
 						<div className='m-slider t-staticSlider'>
-							<article>
-								<img src='/img/delivery-guy.svg' alt=''/>
-								<h3>График доставки</h3>
-								<hr/>
-								<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
-							</article>
-							<article>
-								<img src='/img/schedule.svg' alt=''/>
-								<h3>«Дни заморозки»</h3>
-								<hr/>
-								<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
-							</article>
-							<article>
-								<img src='/img/cash.svg' alt=''/>
-								<h3>Способы оплаты</h3>
-								<hr/>
-								<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
-							</article>
+							{info.data.delivery.delivery.map((value, key) => (
+								<article key={key}>
+									<img src={value.value} alt={value.name}/>
+									<h3>{value.name}</h3>
+									<hr/>
+									<p>{value.prompt}</p>
+								</article>
+							))}
 						</div>
 						<div className='m-slider t-dynamicSlider'>
 							<Swiper spaceBetween={50} slidesPerView={1.5}>
-								<SwiperSlide>
-									<article>
-										<img src='/img/delivery-guy.svg' alt=''/>
-										<h3>График доставки</h3>
-										<hr/>
-										<p>Вы будете получать блюда в удобный вам двухчасовой интервал с 6:00 до 12:00 в течение всего периода подписки раз в 3 дня (по линейке Classic) или раз в 2 дня (по линейке Platinum). Или по 5-ти и 20-ти дневным программам только по будням в ПН и ЧТ (Classic) или ПН, СР, ПТ (Platinum).</p>
-									</article>
-								</SwiperSlide>
-								<SwiperSlide>
-									<article>
-										<img src='/img/schedule.svg' alt=''/>
-										<h3>«Дни заморозки»</h3>
-										<hr/>
-										<p>При заказе любой нашей линейки от 12 дней вы получите так называемые «дни заморозки», с помощью которых вы сможете пропустить, например, доставку рациона на выходные. По 20-ти дневной программе заморозка возможна только по неделям.</p>
-									</article>
-								</SwiperSlide>
-								<SwiperSlide>
-									<article>
-										<img src='/img/cash.svg' alt=''/>
-										<h3>Способы оплаты</h3>
-										<hr/>
-										<p>Оплачивайте любым удобным вам способом: онлайн на сайте или наличными курьеру.</p>
-									</article>
-								</SwiperSlide>
+								{info.data.delivery.delivery.map((value, key) => (
+									<SwiperSlide key={key}>
+										<article>
+											<img src={value.value} alt={value.name}/>
+											<h3>{value.name}</h3>
+											<hr/>
+											<p>{value.prompt}</p>
+										</article>
+									</SwiperSlide>
+								))}
 							</Swiper>
 						</div>
 					</section>
 					<section className='t-grey m-section'>
 						<div className='m-twoColumns'>
 							<article>
-								<h2>Частые вопросы</h2>
-								<p>Если вы не нашли ответа на ваш вопрос, наши менеджеры с радостью вам помогут</p>
+								<h2>{info.data.questions.title}</h2>
+								<p>{info.data.questions.descr}</p>
 								<p>Остались вопросы?</p>
 								<button onClick={openModal}>Получить консультацию</button>
 							</article>
 							<article>
-								<AccordeonItem name='Где вы это всё готовите?' desc='Все блюда мы готовим на собственных производствах'/>
-								<AccordeonItem name='Где вы это всё готовите?' desc='Все блюда мы готовим на собственных производствах'/>
+								{info.data.questions.questions.map((value, key) => (
+									<AccordeonItem key={key} name={value.value} desc={value.prompt}/>
+								))}
 							</article>
 						</div>
 					</section>
 					<section className='m-section'>
 						<h2>Отзывы</h2>
 						<Swiper breakpoints={reviewBreakpoints}>
-							<SwiperSlide>
-								<img src='/img/review.jpg' alt=''/>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/review.jpg' alt=''/>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/review.jpg' alt=''/>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/review.jpg' alt=''/>
-							</SwiperSlide>
-							<SwiperSlide>
-								<img src='/img/review.jpg' alt=''/>
-							</SwiperSlide>
+							{info.data.reviews.reviews.map((value, key) => (
+								<SwiperSlide key={key}>
+									<img src={value.value} alt={value.name}/>
+								</SwiperSlide>
+							))}
 						</Swiper>
 					</section>
 					<section className='t-grey m-section'>
 						<div id='l-subscribe'>
 							<article>
-								<h2>Подпишитесь на наши соцсети</h2>
-								<p>Чтобы своевременно получать информацию о новых блюдах, акциях, конкурсах и мероприятиях.</p>
+								<h2>{info.data.social.title}</h2>
+								<p>{info.data.social.descr}</p>
 							</article>
 							<article>
-								<a href='https://www.instagram.com/' target='_blank' rel='noreferrer'>
-									<img src='/img/instagram.svg' alt='instagram'/>
-								</a>
-								<a href='https://vk.com/' target='_blank' rel='noreferrer'>
-									<img src='/img/vk.svg' alt='vkontakte'/>
-								</a>
-								<a href='https://www.facebook.com/' target='_blank' rel='noreferrer'>
-									<img src='/img/fb.svg' alt='facebook'/>
-								</a>
+								{info.data.social.list.map((value, key) => (
+									<a key={key} href={value.prompt} target='_blank' rel='noreferrer'>
+										<img src={value.value} alt={value.name}/>
+									</a>
+								))}
 							</article>
 						</div>
 					</section>
@@ -909,7 +858,7 @@ export default function App() {
 	function Profile() {
 		const [items, setItems] = useState(null)
 		const [modalIsOpen, setIsOpen] = useState(false)
-		const [addressChanged, setAddressChanged] = useState(null)
+		const [addressChanged, setAddressChanged] = useState(0)
 
 		useEffect(() => {
 			let isItems = true
@@ -934,7 +883,7 @@ export default function App() {
 			})
 
 			return () => (isItems = false)
-		}, [])
+		}, [addressChanged])
 
 		const logout = () => {
 			fetch(apiUrl + '/api/v1/get/auth?type=exit', {
@@ -1007,6 +956,7 @@ export default function App() {
 					if(json.success) {
 						alert('Данные успешно обновлены!')
 						setAddressChanged(addressChanged + 1)
+						closeModal()
 					}
 				})
 			})
@@ -1170,8 +1120,6 @@ export default function App() {
 			return () => (isItems = false)
 		}, [])
 
-		console.log(items)
-
 		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
@@ -1245,55 +1193,194 @@ export default function App() {
 	}
 	
 	function Basket() {
+		const [addresses, setAddresses] = useState(null)
+		const [size, setSize] = useState(null)
+		const [summ, setSumm] = useState(null)
+		const [days, setDays] = useState(null)
+		const [modalIsOpen, setIsOpen] = useState(false)
+		const [addressChanged, setAddressChanged] = useState(0)
+
+		useEffect(() => {
+			let isAddresses = true
+
+			fetch(apiUrl + '/api/v1/get/user', {
+				method: 'get',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				}
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						isAddresses ? setAddresses(json) : setAddresses(null)
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+
+			setSize(sessionStorage.getItem('size'))
+			setSumm(sessionStorage.getItem('summ'))
+			setDays(sessionStorage.getItem('days'))
+
+			return () => (isAddresses = false)
+		}, [addressChanged])
+
+		const order = e => {
+			e.preventDefault()
+
+			fetch(apiUrl + '/api/v1/post/orders?type=site', {
+				method: 'post',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				},
+				body: new FormData(e.target)
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						alert('Заявка отправлена!')
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+		}
+
+		const addAddress = e => {
+			e.preventDefault()
+
+			fetch(apiUrl + '/api/v1/post/address', {
+				method: 'post',
+				mode: 'cors',
+				headers: {
+					'authorization': apiKey,
+					'user-hash': sessionStorage.getItem('userHash')
+				},
+				body: new FormData(e.target)
+			})
+			.then(response => {
+				response.json().then(json => {
+					if(json.success) {
+						alert('Данные успешно обновлены!')
+						setAddressChanged(addressChanged + 1)
+						closeModal()
+					}
+				})
+			})
+			.catch(error => {
+				alert('Ошибка сервера! Пожалуйста, попробуйте позже.')
+			})
+		}
+
+		const openModal = () => {
+			setIsOpen(true)
+		}
+
+		const closeModal = () => {
+			setIsOpen(false)
+		}
+
 		if(!userAuthorized) {
 			return (
 				<Redirect to='/auth/'/>
 			)
 		}
-		return (
-			<main>
-				<section className='m-section'>
-					<h2>Оформление заказа</h2>
-				</section>
-				<form>
-					<section className='t-grey m-section'>
-						<div id='l-basket'>
-							<article>
-								<input type='date'/>
-							</article>
-							<article>
-								<select name=''>
-									<option value=''>Выберите адрес:</option>
-									<option value=''>Адрес</option>
-								</select>
-								<button className='m-linkButton'>Добавить новый адрес</button>
-							</article>
-							<article>
-								<select name=''>
-									<option value=''>Выберите время доставки:</option>
-									<option value=''>8:00</option>
-								</select>
-							</article>
-							<article>
-								<p>Способ оплаты:</p>
-								<div className='m-radioInput'>
-									<input type='radio' name='UserForm' value='m' id='male'/>
-									<label htmlFor='male'>Наличными</label>
-								</div>
-								<div className='m-radioInput'>
-									<input type='radio' name='UserForm' value='f' id='female'/>
-									<label htmlFor='female'>Картой курьеру</label>
-								</div>
-							</article>
-						</div>
-					</section>
+		else if(addresses === null) {
+			return (
+				<main>
 					<section className='m-section'>
-						<h2>Итого: </h2>
-						<button type='submit'>Оформить заказ</button>
+						<h2 className='s-center'>Загрузка...</h2>
 					</section>
-				</form>
-			</main>
-		)
+				</main>
+			)
+		}
+		else {
+			return (
+				<main>
+					<section className='m-section'>
+						<h2>Оформление заказа</h2>
+					</section>
+					<form onSubmit={order}>
+						<input type='hidden' name='OrdersForm[size]' defaultValue={size}/>
+						<input type='hidden' name='OrdersForm[summ]' defaultValue={summ}/>
+						<input type='hidden' name='OrdersForm[day]' defaultValue={days}/>
+						<section className='t-grey m-section'>
+							<div id='l-basket'>
+								<article>
+									<input type='date' name='OrdersForm[date]'/>
+								</article>
+								<article>
+									<select name='OrdersForm[address]' defaultValue=''>
+										<option value='' disabled>Выберите адрес:</option>
+										{addresses.data.address.map(address => (
+											<option key={address.id} value={address.address}>{address.address}</option>
+										))}
+									</select>
+									<button className='m-linkButton' onClick={openModal}>Добавить новый адрес</button>
+									<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
+										<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
+										<h2>Добавить новый адрес</h2>
+										<form id='l-modalAddressForm' onSubmit={addAddress}>
+											<article>
+												<input type='text' name='AddressForm[name]' placeholder='Название'/>
+											</article>
+											<article>
+												<input type='text' name='AddressForm[address]' placeholder='Адрес'/>
+											</article>
+											<article>
+												<input type='text' name='AddressForm[driveway]' placeholder='Подъезд'/>
+											</article>
+											<article>
+												<input type='text' name='AddressForm[apartment]' placeholder='Квартира'/>
+											</article>
+											<article>
+												<input type='text' name='AddressForm[intercom]' placeholder='Домофон'/>
+											</article>
+											<article>
+												<input type='text' name='AddressForm[story]' placeholder='Этаж'/>
+											</article>
+											<button type='submit'>Сохранить</button>
+										</form>
+									</Modal>
+								</article>
+								<article>
+									<select name='OrdersForm[time]' defaultValue=''>
+										<option value='' disabled>Выберите время доставки:</option>
+										<option value='8:00'>8:00</option>
+										<option value='9:00'>9:00</option>
+										<option value='10:00'>10:00</option>
+										<option value='11:00'>11:00</option>
+										<option value='12:00'>12:00</option>
+									</select>
+								</article>
+								<article>
+									<p>Способ оплаты:</p>
+									<div className='m-radioInput'>
+										<input type='radio' name='OrdersForm[payment]' value='nocard' id='cash'/>
+										<label htmlFor='cash'>Наличными</label>
+									</div>
+									<div className='m-radioInput'>
+										<input type='radio' name='OrdersForm[payment]' value='card' id='card'/>
+										<label htmlFor='card'>Картой курьеру</label>
+									</div>
+								</article>
+							</div>
+						</section>
+						<section className='m-section'>
+							<h2>Итого: {summ}р</h2>
+							<button type='submit'>Оформить заказ</button>
+						</section>
+					</form>
+				</main>
+			)
+		}
 	}
 
 	return (
