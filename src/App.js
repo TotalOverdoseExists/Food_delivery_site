@@ -203,7 +203,7 @@ export default function App() {
 												<div className='m-checkboxInput'>
 													<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 													<label htmlFor='agreement'>
-														<a href={politics} target='_blank'>Политика конфиденциальности</a>
+														<a href={politics} target='_blank' rel='noreferrer'>Политика конфиденциальности</a>
 													</label>
 												</div>
 											</article>
@@ -547,7 +547,7 @@ export default function App() {
 										<div className='m-checkboxInput'>
 											<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 											<label htmlFor='agreement'>
-												<a href={politics} target='_blank'>Политика конфиденциальности</a>
+												<a href={politics} target='_blank' rel='noreferrer'>Политика конфиденциальности</a>
 											</label>
 										</div>
 									</article>
@@ -630,7 +630,7 @@ export default function App() {
 									<div className='m-checkboxInput'>
 										<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 										<label htmlFor='agreement'>
-											<a href={politics} target='_blank'>Политика конфиденциальности</a>
+											<a href={politics} target='_blank' rel='noreferrer'>Политика конфиденциальности</a>
 										</label>
 									</div>
 								</article>
