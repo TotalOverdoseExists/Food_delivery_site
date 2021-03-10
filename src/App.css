@@ -234,6 +234,7 @@ img {
 	margin-bottom: 1rem;
 }
 #l-catalogSlider span {
+	display: inline-block;
 	color: var(--darkGrey);
 }
 #l-catalogTotal {
@@ -508,7 +509,7 @@ img {
 
 /*Module*/
 .m-logoImg {
-	max-width: 4rem;
+	max-width: 8rem;
 }
 .m-section {
 	padding: var(--padding);

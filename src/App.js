@@ -280,7 +280,7 @@ export default function App() {
 							</span>
 							{info.data.contacts.docs.map((value, key) => (
 								<span className='t-light' key={key}>
-									<a href={value.value} target='_blank'>{value.name}</a>
+									<a href={value.value} target='_blank' rel='noreferrer'>{value.name}</a>
 								</span>
 							))}
 						</div>
@@ -365,6 +365,9 @@ export default function App() {
 		const [basketSumm, setBasketSumm] = useState('0')
 		const [catalog, setCatalog] = useState(null)
 
+		sessionStorage.setItem('days', basketDays)
+		sessionStorage.setItem('size', basketSize)
+
 		useEffect(() => {
 			let isCatalog = true
 
@@ -380,6 +383,7 @@ export default function App() {
 					if(json.success) {
 						isCatalog ? setCatalog(json) : setCatalog(null)
 						isCatalog ? setBasketSumm(3 * Number(json.data.price).toString(10)) : setBasketSumm('0')
+						sessionStorage.setItem('summ', (3 * Number(json.data.price)).toString(10))
 					}
 				})
 			})
@@ -389,8 +393,6 @@ export default function App() {
 
 			return () => (isCatalog = false)
 		}, [basketSize, basketWeek])
-
-		console.log(catalog)
 
 		const openPurchaseModal = () => {
 			setPurchaseModalOpen(true)
@@ -477,13 +479,13 @@ export default function App() {
 					<div className='m-catalogBlock'>
 						<h3>Примерное меню на неделю:</h3>
 						<div className='m-catalogButtons'>
-							<button data-week='week1' onClick={changeWeek}><span>Понедельник</span><span>Пн</span></button>
-							<button data-week='week2' onClick={changeWeek}><span>Вторник</span><span>Вт</span></button>
-							<button data-week='week3' onClick={changeWeek}><span>Среда</span><span>Ср</span></button>
-							<button data-week='week4' onClick={changeWeek}><span>Четверг</span><span>Чт</span></button>
-							<button data-week='week5' onClick={changeWeek}><span>Пятница</span><span>Пт</span></button>
-							<button data-week='week6' onClick={changeWeek}><span>Суббота</span><span>Сб</span></button>
-							<button data-week='week0' onClick={changeWeek}><span>Воскресенье</span><span>Вс</span></button>
+							<button data-week='week1' onClick={changeWeek}><span data-week='week1'>Понедельник</span><span data-week='week1'>Пн</span></button>
+							<button data-week='week2' onClick={changeWeek}><span data-week='week2'>Вторник</span><span data-week='week2'>Вт</span></button>
+							<button data-week='week3' onClick={changeWeek}><span data-week='week3'>Среда</span><span data-week='week3'>Ср</span></button>
+							<button data-week='week4' onClick={changeWeek}><span data-week='week4'>Четверг</span><span data-week='week4'>Чт</span></button>
+							<button data-week='week5' onClick={changeWeek}><span data-week='week5'>Пятница</span><span data-week='week5'>Пт</span></button>
+							<button data-week='week6' onClick={changeWeek}><span data-week='week6'>Суббота</span><span data-week='week6'>Сб</span></button>
+							<button data-week='week0' onClick={changeWeek}><span data-week='week0'>Воскресенье</span><span data-week='week0'>Вс</span></button>
 						</div>
 						<div id='l-catalogSlider'>
 							<Swiper breakpoints={catalogBreakpoints}>
@@ -653,7 +655,7 @@ export default function App() {
 					<section className='m-section'>
 						<Catalog/>
 					</section>
-					<section id='l-delivery' className='t-grey m-section'>
+					<section className='t-grey m-section'>
 						<div className='m-twoColumns'>
 							<article>
 								<h2>{info.data.cook.title}</h2>
@@ -664,7 +666,7 @@ export default function App() {
 							</article>
 						</div>
 					</section>
-					<section className='m-section t-darkBackground'>
+					<section id='l-delivery' className='m-section t-darkBackground'>
 						<h2>Оплата и доставка</h2>
 						<div className='m-slider t-staticSlider'>
 							{info.data.delivery.delivery.map((value, key) => (
@@ -954,7 +956,6 @@ export default function App() {
 			.then(response => {
 				response.json().then(json => {
 					if(json.success) {
-						alert('Данные успешно обновлены!')
 						setAddressChanged(addressChanged + 1)
 						closeModal()
 					}
@@ -977,7 +978,6 @@ export default function App() {
 			.then(response => {
 				response.json().then(json => {
 					if(json.success) {
-						alert('Данные успешно обновлены!')
 						setAddressChanged(addressChanged + 1)
 					}
 				})
@@ -1268,7 +1268,6 @@ export default function App() {
 			.then(response => {
 				response.json().then(json => {
 					if(json.success) {
-						alert('Данные успешно обновлены!')
 						setAddressChanged(addressChanged + 1)
 						closeModal()
 					}
@@ -1324,31 +1323,6 @@ export default function App() {
 										))}
 									</select>
 									<button className='m-linkButton' onClick={openModal}>Добавить новый адрес</button>
-									<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
-										<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
-										<h2>Добавить новый адрес</h2>
-										<form id='l-modalAddressForm' onSubmit={addAddress}>
-											<article>
-												<input type='text' name='AddressForm[name]' placeholder='Название'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[address]' placeholder='Адрес'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[driveway]' placeholder='Подъезд'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[apartment]' placeholder='Квартира'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[intercom]' placeholder='Домофон'/>
-											</article>
-											<article>
-												<input type='text' name='AddressForm[story]' placeholder='Этаж'/>
-											</article>
-											<button type='submit'>Сохранить</button>
-										</form>
-									</Modal>
 								</article>
 								<article>
 									<select name='OrdersForm[time]' defaultValue=''>
@@ -1378,6 +1352,31 @@ export default function App() {
 							<button type='submit'>Оформить заказ</button>
 						</section>
 					</form>
+					<Modal isOpen={modalIsOpen} onRequestClose={closeModal} overlayClassName='m-modalOverlay' className='m-modal'>
+						<button className='m-linkButton m-closeModalButton' onClick={closeModal}>&#10006;</button>
+						<h2>Добавить новый адрес</h2>
+						<form id='l-modalAddressForm' onSubmit={addAddress}>
+							<article>
+								<input type='text' name='AddressForm[name]' placeholder='Название'/>
+							</article>
+							<article>
+								<input type='text' name='AddressForm[address]' placeholder='Адрес'/>
+							</article>
+							<article>
+								<input type='text' name='AddressForm[driveway]' placeholder='Подъезд'/>
+							</article>
+							<article>
+								<input type='text' name='AddressForm[apartment]' placeholder='Квартира'/>
+							</article>
+							<article>
+								<input type='text' name='AddressForm[intercom]' placeholder='Домофон'/>
+							</article>
+							<article>
+								<input type='text' name='AddressForm[story]' placeholder='Этаж'/>
+							</article>
+							<button type='submit'>Сохранить</button>
+						</form>
+					</Modal>
 				</main>
 			)
 		}
