@@ -794,7 +794,6 @@ export default function App() {
 			.then(response => {
 				if(response.ok) {
 					response.json().then(json => {
-						console.log(json)
 						if(json.success) {
 							if(json.data.event === 'code') {
 								setTelInput('hidden')

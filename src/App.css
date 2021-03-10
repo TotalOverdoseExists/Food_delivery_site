@@ -601,6 +601,7 @@ button.m-closeModalButton {
 	border-radius: 1rem;
 	padding: 2.5rem;
 	max-width: 50vw;
+	outline: none;
 }
 .m-modalMenu {
 	position: relative;
