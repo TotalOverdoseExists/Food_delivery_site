@@ -44,6 +44,8 @@ const catalogBreakpoints = {
 export default function App() {
 	const [userAuthorized, setUserAuthorized] = useState(false)
 	const [info, setInfo] = useState(null)
+	const [offer, setOffer] = useState(null)
+	const [politics, setPolitics] = useState(null)
 
 	useEffect(() => {
 		if(sessionStorage.getItem('userHash')) {
@@ -82,6 +84,16 @@ export default function App() {
 			response.json().then(json => {
 				if(json.success) {
 					isInfo ? setInfo(json) : setInfo(null)
+					if(isInfo) {
+						for(let doc of json.data.contacts.docs) {
+							if(doc.name === 'Оферта') {
+								setOffer(doc.value)
+							}
+							else if(doc.name === 'Политика конфиденциальности') {
+								setPolitics(doc.value)
+							}
+						}
+					}
 				}
 			})
 		})
@@ -191,7 +203,7 @@ export default function App() {
 												<div className='m-checkboxInput'>
 													<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 													<label htmlFor='agreement'>
-														<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+														<a href={politics} target='_blank'>Политика конфиденциальности</a>
 													</label>
 												</div>
 											</article>
@@ -535,7 +547,7 @@ export default function App() {
 										<div className='m-checkboxInput'>
 											<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 											<label htmlFor='agreement'>
-												<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+												<a href={politics} target='_blank'>Политика конфиденциальности</a>
 											</label>
 										</div>
 									</article>
@@ -618,7 +630,7 @@ export default function App() {
 									<div className='m-checkboxInput'>
 										<input type='checkbox' name='RequestForm[agreement]' id='agreement' checked/>
 										<label htmlFor='agreement'>
-											<a href='/docs/doc.pdf' target='_blank'>Политика конфиденциальности</a>
+											<a href={politics} target='_blank'>Политика конфиденциальности</a>
 										</label>
 									</div>
 								</article>
@@ -837,7 +849,7 @@ export default function App() {
 							</InputMask>
 							<button className={timerButtonClass} type={counter === 0 ? 'submit' : 'button'}>Отправить повторно ({formatTime(counter)})</button>
 							<span>
-								Нажимая кнопку «Продолжить», Вы соглашаетесь с условиями <a href='/docs/doc.pdf' target='_blank' rel='noreferrer'>оферты</a> и даете согласие на обработку <a href='/docs/doc.pdf' target='_blank' rel='noreferrer'>персональных данных</a>
+								Нажимая кнопку «Продолжить», Вы соглашаетесь с условиями <a href={offer} target='_blank' rel='noreferrer'>оферты</a> и даете согласие на обработку <a href={politics} target='_blank' rel='noreferrer'>персональных данных</a>
 							</span>
 							<button type={continueButton}>Продолжить</button>
 						</form>
