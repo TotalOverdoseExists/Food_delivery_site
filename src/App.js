@@ -15,7 +15,7 @@ import 'swiper/swiper-bundle.min.css'
 import './App.css'
 
 const apiKey = '3c0d4811f72089fdd67d6ec69ad06889fb03b88a'
-const apiUrl = 'https://api.musi4s.website'
+const apiUrl = 'https://xn--80aqu.xn----7sbbncf3d.xn--p1ai'
 
 Modal.setAppElement('#root')
 
