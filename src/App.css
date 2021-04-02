@@ -39,6 +39,7 @@
 	box-sizing: border-box;
 	-webkit-overflow-scrolling: touch;
 	-webkit-appearance: none;
+	outline: none;
 }
 html {
 	height: 100%;
