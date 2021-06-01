@@ -279,12 +279,6 @@ export default function App() {
 							<span className='t-dark'>
 								{info.data.contacts.adress}
 							</span>
-							<span className='t-light'>
-								Адрес для корреспонденции:
-							</span>
-							<span className='t-dark'>
-								{info.data.contacts.adress}
-							</span>
 						</div>
 						<div id='l-copyright'>
 							<span className='t-dark'>
@@ -373,7 +367,7 @@ export default function App() {
 		const [selectOpen, setSelectOpen] = useState('s-closed')
 		const [basketWeek, setBasketWeek] = useState('week1')
 		const [basketSize, setBasketSize] = useState('xs')
-		const [basketDays, setBasketDays] = useState('3 дня')
+		const [basketDays, setBasketDays] = useState('1 день')
 		const [basketSumm, setBasketSumm] = useState('0')
 		const [catalog, setCatalog] = useState(null)
 
@@ -394,8 +388,8 @@ export default function App() {
 				response.json().then(json => {
 					if(json.success) {
 						isCatalog ? setCatalog(json) : setCatalog(null)
-						isCatalog ? setBasketSumm(3 * Number(json.data.price).toString(10)) : setBasketSumm('0')
-						sessionStorage.setItem('summ', (3 * Number(json.data.price)).toString(10))
+						isCatalog ? setBasketSumm(Number(json.data.price).toString(10)) : setBasketSumm('0')
+						sessionStorage.setItem('summ', (Number(json.data.price)).toString(10))
 					}
 				})
 			})
@@ -433,10 +427,27 @@ export default function App() {
 		}
 
 		const changeSelect = e => {
+			let summary = Number(e.target.dataset.multiplier) * Number(catalog.data.price)
+
 			setBasketDays(e.target.dataset.id)
 			sessionStorage.setItem('days', e.target.dataset.id)
-			setBasketSumm((Number(e.target.dataset.multiplier) * Number(catalog.data.price)).toString(10))
-			sessionStorage.setItem('summ', (Number(e.target.dataset.multiplier) * Number(catalog.data.price)).toString(10))
+			switch(e.target.dataset.multiplier) {
+				case '14':
+					setBasketSumm(Math.ceil(summary - summary * 0.05).toString(10))
+					sessionStorage.setItem('summ', Math.ceil(summary - summary * 0.05).toString(10))
+					break
+				case '21':
+					setBasketSumm(Math.ceil(summary - summary * 0.07).toString(10))
+					sessionStorage.setItem('summ', Math.ceil(summary - summary * 0.07).toString(10))
+					break
+				case '28':
+					setBasketSumm(Math.ceil(summary - summary * 0.09).toString(10))
+					sessionStorage.setItem('summ', Math.ceil(summary - summary * 0.09).toString(10))
+					break
+				default:
+					setBasketSumm(Math.ceil(summary).toString(10))
+					sessionStorage.setItem('summ', Math.ceil(summary).toString(10))
+			}
 			toggleSelect()
 		}
 
@@ -563,13 +574,11 @@ export default function App() {
 							<h3>Выберите продолжительность:</h3>
 							<div className='m-select'>
 								<article className={selectOpen}>
-									<span data-id='3 дня' data-multiplier='3' onClick={changeSelect}>3 дня: {catalog.data.price}р в день</span>
-									<span data-id='5 дней' data-multiplier='5' onClick={changeSelect}>5 дней: {catalog.data.price}р в день</span>
-									<span data-id='6 дней' data-multiplier='6' onClick={changeSelect}>6 дней: {catalog.data.price}р в день</span>
-									<span data-id='12 дней' data-multiplier='12' onClick={changeSelect}>12 дней: {catalog.data.price}р в день</span>
-									<span data-id='20 дней' data-multiplier='20' onClick={changeSelect}>20 дней: {catalog.data.price}р в день</span>
-									<span data-id='24 дня' data-multiplier='24' onClick={changeSelect}>24 дня: {catalog.data.price}р в день</span>
-									<span data-id='30 дней' data-multiplier='30' onClick={changeSelect}>30 дней: {catalog.data.price}р в день</span>
+									<span data-id='1 день' data-multiplier='1' onClick={changeSelect}>1 день: {catalog.data.price}р в день</span>
+									<span data-id='7 дней' data-multiplier='7' onClick={changeSelect}>7 дней: {catalog.data.price}р в день</span>
+									<span data-id='14 дней' data-multiplier='14' onClick={changeSelect}>14 дней: {catalog.data.price}р в день</span>
+									<span data-id='21 день' data-multiplier='21' onClick={changeSelect}>21 день: {catalog.data.price}р в день</span>
+									<span data-id='28 дней' data-multiplier='28' onClick={changeSelect}>28 дней: {catalog.data.price}р в день</span>
 								</article>
 								<button onClick={toggleSelect}>{basketDays}: {catalog.data.price}р в день <img src='/img/arrow.svg' alt=''/></button>
 							</div>
